@@ -2,30 +2,30 @@ package models;
 
 public class User {
     
-    private String user_name;
+    private String username;
     private String password;
-    private int count_downloads; 
-    private int count_failures;
+    private int countDownloads;
+    private int countFailures;
 
     public User() {
-		user_name = "";
+		username = "";
 		password = "";
-        count_downloads=0;
-        count_failures=0;
+        countDownloads =0;
+        countFailures =0;
 	}
 
     public User(String user_name, String password) {
-		this.user_name = user_name;
+		this.username = user_name;
 		this.password = password;
-        count_downloads=0;
-        count_failures=0;
+        countDownloads =0;
+        countFailures =0;
 	}
 
-    public String getUser_name() {
-		return user_name;
+    public String getUsername() {
+		return username;
 	}
-	public void setUser_name(String user_name) {
-		this.user_name = user_name;
+	public void setUsername(String username) {
+		this.username = username;
 	}
 	public String getPassword() {
 		return password;
@@ -33,27 +33,27 @@ public class User {
 	public void setPassword(String password) {
 		this.password = password;
 	}
-	public int getCount_downloads() {
-		return count_downloads;
+	public int getCountDownloads() {
+		return countDownloads;
 	}
-	public void setCount_downloads(int count_downloads) {
-		this.count_downloads = count_downloads;
+	public void setCountDownloads(int countDownloads) {
+		this.countDownloads = countDownloads;
 	}
-	public int getCount_failures() {
-		return count_failures;
+	public int getCountFailures() {
+		return countFailures;
 	}
-	public void setCount_failures(int count_failures) {
-		this.count_failures = count_failures;
+	public void setCountFailures(int countFailures) {
+		this.countFailures = countFailures;
 	}
 
-    /* method to increase  count_downloads  +1 */
-    public void increaseCount_downloads(){
-        count_downloads++;
+    /* method to increase  countDownloads  +1 */
+    public void increaseCountDownloads(){
+        countDownloads++;
     }
 
-    /*method to increase count_failures +1*/
-    public void increaseCount_failures(){
-        count_failures++;
+    /*method to increase countFailures +1*/
+    public void increaseCountFailures(){
+        countFailures++;
     }
 
 }

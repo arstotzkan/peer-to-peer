@@ -17,11 +17,9 @@ public class UploadedFile {
         usersWithFile = new ArrayList<>();
         this.name=name;
      }
-     /*μέθοδος που προσθέτει το username του χρήστη που έχει το αρχείο στη λίστα */
      public void addUserToTheList(String username){
         usersWithFile.add(username);
      }
-     /*μέθοδος για λήφη της arraylist των χρηστών που έχουν το αρχείο */
      public ArrayList<String> getUsersWithFile(){
         return usersWithFile;
      }
