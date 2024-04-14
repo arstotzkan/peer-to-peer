@@ -2,34 +2,26 @@ package models;
 
 public class OnlineUser extends User{
     
-    private String token_id;
-    private String ip_address;
-    private int port;
-    
-    public OnlineUser(String user_name, String password, String token_id, String ip_address, int port) {
-		super(user_name, password);
-		this.token_id = token_id;
-		this.ip_address = ip_address;
-		this.port = port;
+    private String tokenID;
+    private String address;
+
+    public OnlineUser(String username, String password, String tokenID, String address) {
+		super(username, password);
+		this.tokenID = tokenID;
+		this.address = address;
 	}
 
-    public String getToken_id() {
-		return token_id;
+    public String getTokenID() {
+		return tokenID;
 	}
-	public void setToken_id(String token_id) {
-		this.token_id = token_id;
+	public void setTokenID(String tokenID) {
+		this.tokenID = tokenID;
 	}
-	public String getIp_address() {
-		return ip_address;
+	public String getAddress() {
+		return address;
 	}
-	public void setIp_address(String ip_address) {
-		this.ip_address = ip_address;
-	}
-	public int getPort() {
-		return port;
-	}
-	public void setPort(int port) {
-		this.port = port;
+	public void setAddress(String address) {
+		this.address = address;
 	}
 
 }
