@@ -63,6 +63,7 @@ public class TrackerRequestHandler extends Thread{
         response.put("message", "Succesfully registered");
     }
     public void handleLogIn(HashMap<String,String> request){
+        //TODO: function to generate tokenID
         OnlineUser loggedIn = new OnlineUser(request.get("username"),request.get("password"), "", this.sender); //TODO: get names from request
         this.memory.addOnlineUser(loggedIn);
 
@@ -73,7 +74,8 @@ public class TrackerRequestHandler extends Thread{
         //return confirmation message
     }
     public void handleLogOut(HashMap<String,String> request){
-        this.memory.removeOnlineUser(""); //TODO: get name
+        String username = request.get("username");
+        this.memory.removeOnlineUser(username);
 
         HashMap<String, String> response = new HashMap<>();
         response.put("message", "Succesfully logged out");
@@ -81,19 +83,18 @@ public class TrackerRequestHandler extends Thread{
         //remove user to active users
         //return confirmation message
     }
-//    public void handleFileUpdate(){
-//        //remove user to active users
-//        //return confirmation message
-//    }
+
     public void handleListRequest(HashMap<String,String> request){
         this.memory.getFileNames();
+        //TODO: TAKE ONLY NAMES
         HashMap<String, ArrayList<String>> response = new HashMap<>();
         response.put("fileList", new ArrayList<String>());
 
     }
     public void handleDetailsRequest(HashMap<String,String> request){
         //get and return details from file
-        UploadedFile file = this.memory.getUploadedFile("name");
+        String filename = request.get("filename");
+        UploadedFile file = this.memory.getUploadedFile(filename);
         HashMap<String, UploadedFile> response = new HashMap<>();
         response.put("details", file);
     }

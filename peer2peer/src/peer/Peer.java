@@ -1,12 +1,12 @@
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
+package peer;
+
+import models.UploadedFile;
+
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.io.File;
-import java.io.FileReader;
-
+import java.util.ArrayList;
+import java.util.HashMap;
 
 
 public class Peer extends Thread {
@@ -16,8 +16,8 @@ public class Peer extends Thread {
     private String sharedDirPath;
     private String tokenId; // meta to login pairno auto
     private Socket trackerSocket;
-    private DataOutputStream trackerWriter;
-    private BufferedReader trackerReader;
+    private ObjectOutputStream trackerWriter;
+    private ObjectInputStream trackerReader;
     private static final int tracker_port = 12345; //to allazo me to actual port
 
     public Peer(String name, String password, int port, String sharedDirPath) throws IOException {
@@ -34,60 +34,78 @@ public class Peer extends Thread {
 
         // Connect to the tracker
         trackerSocket = new Socket("tracker_address", tracker_port); // Replace kai edo
-        trackerWriter = new DataOutputStream(trackerSocket.getOutputStream());
-        trackerReader = new BufferedReader(new InputStreamReader(trackerSocket.getInputStream()));
+        trackerWriter = new ObjectOutputStream(trackerSocket.getOutputStream());
+        trackerReader = new ObjectInputStream(trackerSocket.getInputStream());
     }
 
     public void register() {
         try {
             // Send registration request to tracker
-            trackerWriter.writeBytes("REGISTER " + name + " " + password + "\n");
-            String response = trackerReader.readLine();
+            HashMap<String, String> request = new HashMap<>();
+            request.put("type", "register");
+            request.put("username", name);
+            request.put("password", password);
+
+            trackerWriter.writeObject(request);
+            HashMap<String, String> response = (HashMap<String, String>) trackerReader.readObject();
 
             // Check response from tracker
-            if (response.startsWith("SUCCESS")) { // tha prepei to mnma apo tracker na arxizei me succes ( gia tin ulopoiisi)
+            if (response.get("message").equals("Succesfully registered") ) {
                 System.out.println("Registration successful.");
             } else {
-                System.out.println("Registration failed: " + response.substring(8)); // Error message from tracker , to (8) einai gia na ksekinisi meta to erro( prepei na ginoun ston tracker auta)
+                System.out.println("Registration failed: " + response.get("message"));
             }
         } catch (IOException e) {
             e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
         }
     }
 
     public void logIn() {
         try {
             // Send login request to tracker
-            trackerWriter.writeBytes("LOGIN " + name + " " + password + "\n");
-            String response = trackerReader.readLine();
+            HashMap<String, String> request = new HashMap<>();
+            request.put("type", "logIn");
+            request.put("username", name);
+            request.put("password", password);
+
+            trackerWriter.writeObject(request);
+            HashMap<String, String> response = (HashMap<String, String>) trackerReader.readObject();
 
             // Check response from tracker
-            if (response.startsWith("TOKEN")) { // idia logiki me register edo
-                tokenId = response.substring(6); // pairnei to token
-                System.out.println("Login successful. Token ID: " + tokenId);
+            if (response.get("message").equals("Succesfully logged in") ) {
+                System.out.println("Registration successful.");
             } else {
-                System.out.println("Login failed: " + response.substring(6)); // Error message from tracker. same
+                System.out.println("Registration failed: " + response.get("message"));
             }
         } catch (IOException e) {
             e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
         }
     }
 
     public void logOut() {
         try {
             // Send logout request to tracker
-            trackerWriter.writeBytes("LOGOUT " + tokenId + "\n");
-            String response = trackerReader.readLine();
+            HashMap<String, String> request = new HashMap<>();
+            request.put("type", "logOut");
+            request.put("username", name);
+
+            trackerWriter.writeObject(request);
+            HashMap<String, String> response = (HashMap<String, String>) trackerReader.readObject();
 
             // Check response from tracker
-            if (response.startsWith("SUCCESS")) {
-                System.out.println("Logout successful.");
-                tokenId = null; // Clear token ID meta to log out
+            if (response.get("message").equals("Succesfully logged out") ) {
+                System.out.println("Registration successful.");
             } else {
-                System.out.println("Logout failed: " + response.substring(8)); // Error message from tracker
+                System.out.println("Registration failed: " + response.get("message"));
             }
         } catch (IOException e) {
             e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
         }
     }
     public void loadInitialFiles() {
@@ -117,21 +135,32 @@ public class Peer extends Thread {
     public void list() {
         try {
             // stelnei request sto tracker gia ta available list
-            trackerWriter.writeBytes("LIST\n");
-            String response = trackerReader.readLine();
+            HashMap<String, String> request = new HashMap<>();
+            request.put("type", "listRequest");
+            trackerWriter.writeObject(request);
+
+            HashMap<String, ArrayList<String>> response = (HashMap<String, ArrayList<String>>) trackerReader.readObject();
             System.out.println("Available files: " + response);
         } catch (IOException e) {
             e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
         }
     }
     public void details(String fileName) {
         try {
             // stelnei request ston tracker gia plirofories enos sugkekrimenou arxeiou
-            trackerWriter.writeBytes("DETAILS " + fileName + "\n");
-            String response = trackerReader.readLine();
+            HashMap<String, String> request = new HashMap<>();
+            request.put("type", "listRequest");
+            request.put("filename", fileName);
+            trackerWriter.writeObject(request);
+
+            HashMap<String, UploadedFile> response = (HashMap<String, UploadedFile>) trackerReader.readObject();
             System.out.println("Details for file " + fileName + ": " + response);
         } catch (IOException e) {
             e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
         }
     }
 
