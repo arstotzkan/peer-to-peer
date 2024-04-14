@@ -56,7 +56,7 @@ public class TrackerRequestHandler extends Thread{
         }
     }
     public void handleRegister(HashMap<String,String> request){
-        User newUser = new User(request.get("username"), request.get("password") ); //TODO: get names from request
+        User newUser = new User(request.get("username"), request.get("password") );
         this.memory.addUser(newUser);
 
         HashMap<String, String> response = new HashMap<>();
@@ -64,7 +64,7 @@ public class TrackerRequestHandler extends Thread{
     }
     public void handleLogIn(HashMap<String,String> request){
         //TODO: function to generate tokenID
-        OnlineUser loggedIn = new OnlineUser(request.get("username"),request.get("password"), "", this.sender); //TODO: get names from request
+        OnlineUser loggedIn = new OnlineUser(request.get("username"),request.get("password"), "", this.sender);
         this.memory.addOnlineUser(loggedIn);
 
         HashMap<String, String> response = new HashMap<>();
