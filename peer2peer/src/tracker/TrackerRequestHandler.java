@@ -18,7 +18,6 @@ public class TrackerRequestHandler extends Thread{
     ObjectOutputStream out;
     String sender;
     TrackerMemory memory;
-    String message;
 
     public TrackerRequestHandler(Socket req , TrackerMemory mem) throws IOException {
         this.out = new ObjectOutputStream(req.getOutputStream());
