@@ -6,7 +6,7 @@ import java.util.Scanner;
 public class CreatePeers {
     /*Class that initializes a number of Peer objects in this Machine*/
     public static void main(String[] args) throws IOException {
-        final String trackerAddress = "localhost";
+        final String trackerAddress = args[0];
         int numberOfPeers = -1;
         Scanner scanner = new Scanner(System.in);
         while (numberOfPeers < 1 || numberOfPeers > 1000) {

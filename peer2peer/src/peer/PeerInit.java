@@ -12,6 +12,7 @@ public class PeerInit {
     static String sharedDir;
     public static void main(String[] args) {
         sharedDir = args[0];
+        trackerAddress = args[1];
         System.out.println("Hello world!");
     }
 
