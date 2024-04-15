@@ -7,6 +7,9 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 
 public class PeerRequestHandler {
@@ -37,8 +40,15 @@ public class PeerRequestHandler {
         }
     }
 
-    public void handleSimpleDownload(HashMap<String,String> request){
-        //TODO: implement
+    public void handleSimpleDownload(HashMap<String,String> request) throws IOException {
+        String filename = request.get("filename");
+        Path path = Paths.get(filename);
+        byte[] content = Files.readAllBytes(path);
+
+        HashMap<String, byte[]> response = new HashMap<>();
+        response.put("file", content);
+        out.writeObject(response);
+
     }
 
     public void handleCheckActive() throws IOException {
