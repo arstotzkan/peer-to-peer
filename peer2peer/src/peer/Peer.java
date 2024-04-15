@@ -167,17 +167,38 @@ public class Peer extends Thread {
     public void checkActive(String peerIP, int peerPort) {
         try {
             // stelenei request ston tracker na dei an kapoios peer einai active
-            trackerWriter.writeBytes("CHECK_ACTIVE " + peerIP + " " + peerPort + "\n");
-            String response = trackerReader.readLine();
-            if (response.startsWith("ACTIVE")) {
+            HashMap<String, String> request = new HashMap<>();
+            request.put("type", "checkActive");
+
+            HashMap<String, String> response = (HashMap<String, String>) trackerReader.readObject();
+
+            if (response.get("active").equals("true")) {
                 System.out.println("Peer " + peerIP + ":" + peerPort + " is active.");
-            } else {
-                System.out.println("Peer " + peerIP + ":" + peerPort + " is not active.");
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
+            System.out.println("Peer " + peerIP + ":" + peerPort + " is not active.");
         }
 
+    }
 
+    public void simpleDownload(String filename){
+        try {
+            // stelenei request ston tracker na dei an kapoios peer einai active
+            HashMap<String, String> request = new HashMap<>();
+            request.put("type", "simpleDownload");
+            request.put("filename", filename);
+
+            HashMap<String, byte[]> response = (HashMap<String, byte[]>) trackerReader.readObject();
+            this.writeFile(filename, response.get("content"));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void writeFile(String filename, byte[] content) throws IOException {
+        File file = new File(filename);
+        OutputStream os = new FileOutputStream(file);
+        os.write(content);
     }
 }

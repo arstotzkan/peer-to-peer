@@ -54,47 +54,45 @@ public class TrackerRequestHandler extends Thread{
             throw new RuntimeException(e);
         }
     }
-    public void handleRegister(HashMap<String,String> request){
+    public void handleRegister(HashMap<String,String> request) throws IOException {
         User newUser = new User(request.get("username"), request.get("password") );
         this.memory.addUser(newUser);
 
         HashMap<String, String> response = new HashMap<>();
         response.put("message", "Succesfully registered");
+        out.writeObject(response);
     }
-    public void handleLogIn(HashMap<String,String> request){
+    public void handleLogIn(HashMap<String,String> request) throws IOException {
         //TODO: function to generate tokenID
         OnlineUser loggedIn = new OnlineUser(request.get("username"),request.get("password"), "", this.sender);
         this.memory.addOnlineUser(loggedIn);
 
         HashMap<String, String> response = new HashMap<>();
         response.put("message", "Succesfully logged in");
-
-        //add user to active users
-        //return confirmation message
+        out.writeObject(response);
     }
-    public void handleLogOut(HashMap<String,String> request){
+    public void handleLogOut(HashMap<String,String> request) throws IOException {
         String username = request.get("username");
         this.memory.removeOnlineUser(username);
 
         HashMap<String, String> response = new HashMap<>();
         response.put("message", "Succesfully logged out");
-
-        //remove user to active users
-        //return confirmation message
+        out.writeObject(response);
     }
 
-    public void handleListRequest(HashMap<String,String> request){
+    public void handleListRequest(HashMap<String,String> request) throws IOException {
         this.memory.getFileNames();
         //TODO: TAKE ONLY NAMES
         HashMap<String, ArrayList<String>> response = new HashMap<>();
         response.put("fileList", new ArrayList<String>());
-
+        out.writeObject(response);
     }
-    public void handleDetailsRequest(HashMap<String,String> request){
+    public void handleDetailsRequest(HashMap<String,String> request) throws IOException {
         //get and return details from file
         String filename = request.get("filename");
         UploadedFile file = this.memory.getUploadedFile(filename);
         HashMap<String, UploadedFile> response = new HashMap<>();
         response.put("details", file);
+        out.writeObject(response);
     }
 }
