@@ -1,6 +1,7 @@
 package peer;
 
 import models.UploadedFile;
+import tracker.TrackerRequestHandler;
 
 import java.io.*;
 import java.net.ServerSocket;
@@ -36,6 +37,34 @@ public class Peer extends Thread {
         trackerSocket = new Socket("tracker_address", tracker_port); // Replace kai edo
         trackerWriter = new ObjectOutputStream(trackerSocket.getOutputStream());
         trackerReader = new ObjectInputStream(trackerSocket.getInputStream());
+    }
+
+    public void run(){
+        this.openPeerServer();
+    }
+
+    private void openPeerServer(){
+        Socket req = null;
+        try {
+            /* Create Server Socket */
+            server = new ServerSocket();
+
+            while (true) {
+                /* Accept the connection */
+                req = server.accept();
+                Thread reqThread = new PeerRequestHandler(req);
+                reqThread.start();
+            }
+
+        } catch (IOException ioException) {
+            ioException.printStackTrace();
+        } finally {
+            try {
+                req.close();
+            } catch (IOException ioException) {
+                ioException.printStackTrace();
+            }
+        }
     }
 
     public String register() {

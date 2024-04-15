@@ -20,8 +20,7 @@ public class Tracker extends Thread{
         Socket req = null;
         try {
             /* Create Server Socket */
-            server = new ServerSocket(60000, 100); //socket for users
-            System.out.println("File processing ready...");
+            server = new ServerSocket(12345, 100); //socket for users
 
             while (true) {
                 /* Accept the connection */
