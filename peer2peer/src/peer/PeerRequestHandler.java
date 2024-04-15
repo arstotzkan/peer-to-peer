@@ -41,9 +41,9 @@ public class PeerRequestHandler {
         //TODO: implement
     }
 
-    public void handleCheckActive(){
+    public void handleCheckActive() throws IOException {
         HashMap<String, String> response = new HashMap<>();
         response.put("active", "true");
-
+        out.writeObject(response);
     }
 }
