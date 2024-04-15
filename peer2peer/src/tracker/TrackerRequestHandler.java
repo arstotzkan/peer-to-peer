@@ -55,6 +55,8 @@ public class TrackerRequestHandler extends Thread{
         }
     }
     public void handleRegister(HashMap<String,String> request) throws IOException {
+
+        //TODO: HANDLE USERNAME ALREADY EXISTS
         User newUser = new User(request.get("username"), request.get("password") );
         this.memory.addUser(newUser);
 
@@ -64,6 +66,8 @@ public class TrackerRequestHandler extends Thread{
     }
     public void handleLogIn(HashMap<String,String> request) throws IOException {
         //TODO: function to generate tokenID
+
+        //TODO: HANDLE USER NOT REGISTERED
         OnlineUser loggedIn = new OnlineUser(request.get("username"),request.get("password"), "", this.sender);
         this.memory.addOnlineUser(loggedIn);
 
@@ -72,6 +76,8 @@ public class TrackerRequestHandler extends Thread{
         out.writeObject(response);
     }
     public void handleLogOut(HashMap<String,String> request) throws IOException {
+        //TODO: HANDLE USER NOT LOGGED IN
+
         String username = request.get("username");
         this.memory.removeOnlineUser(username);
 
@@ -84,7 +90,7 @@ public class TrackerRequestHandler extends Thread{
         this.memory.getFileNames();
         //TODO: TAKE ONLY NAMES
         HashMap<String, ArrayList<String>> response = new HashMap<>();
-        response.put("fileList", new ArrayList<String>());
+        response.put("F", new ArrayList<String>());
         out.writeObject(response);
     }
     public void handleDetailsRequest(HashMap<String,String> request) throws IOException {

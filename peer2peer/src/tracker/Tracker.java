@@ -26,7 +26,7 @@ public class Tracker extends Thread{
             while (true) {
                 /* Accept the connection */
                 req = server.accept();
-                Thread reqThread = new TrackerRequestHandler(req, this.memory); //TODO: add message from request (somehow)
+                Thread reqThread = new TrackerRequestHandler(req, this.memory);
                 reqThread.start();
             }
 

@@ -20,10 +20,10 @@ public class Peer extends Thread {
     private ObjectInputStream trackerReader;
     private static final int tracker_port = 12345; //to allazo me to actual port
 
-    public Peer(String name, String password, int port, String sharedDirPath) throws IOException {
+    public Peer(String name, String password, String sharedDirPath) throws IOException {
         this.name = name;
         this.password = password;
-        this.server = new ServerSocket(port);
+        this.server = new ServerSocket();
         this.sharedDirPath = sharedDirPath;
 
         // Create shared directory if it doesn't exist
@@ -38,7 +38,7 @@ public class Peer extends Thread {
         trackerReader = new ObjectInputStream(trackerSocket.getInputStream());
     }
 
-    public void register() {
+    public String register() {
         try {
             // Send registration request to tracker
             HashMap<String, String> request = new HashMap<>();
@@ -51,18 +51,18 @@ public class Peer extends Thread {
 
             // Check response from tracker
             if (response.get("message").equals("Succesfully registered") ) {
-                System.out.println("Registration successful.");
+                return "Registration successful.";
             } else {
-                System.out.println("Registration failed: " + response.get("message"));
+                return "Registration failed: " + response.get("message");
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            return "Registration failed: " + e.getMessage();
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public void logIn() {
+    public String logIn() {
         try {
             // Send login request to tracker
             HashMap<String, String> request = new HashMap<>();
@@ -75,18 +75,18 @@ public class Peer extends Thread {
 
             // Check response from tracker
             if (response.get("message").equals("Succesfully logged in") ) {
-                System.out.println("Registration successful.");
+                return "Registration successful.";
             } else {
-                System.out.println("Registration failed: " + response.get("message"));
+                return "Registration failed: " + response.get("message");
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            return "Registration failed: " + e.getMessage();
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public void logOut() {
+    public String logOut() {
         try {
             // Send logout request to tracker
             HashMap<String, String> request = new HashMap<>();
@@ -98,12 +98,12 @@ public class Peer extends Thread {
 
             // Check response from tracker
             if (response.get("message").equals("Succesfully logged out") ) {
-                System.out.println("Registration successful.");
+                return "Logout successful.";
             } else {
-                System.out.println("Registration failed: " + response.get("message"));
+                return "Logout failed: " + response.get("message");
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            return "Registration failed: " + e.getMessage();
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
@@ -132,7 +132,7 @@ public class Peer extends Thread {
         }
     }
 
-    public void list() {
+    public ArrayList<String> list() {
         try {
             // stelnei request sto tracker gia ta available list
             HashMap<String, String> request = new HashMap<>();
@@ -140,14 +140,14 @@ public class Peer extends Thread {
             trackerWriter.writeObject(request);
 
             HashMap<String, ArrayList<String>> response = (HashMap<String, ArrayList<String>>) trackerReader.readObject();
-            System.out.println("Available files: " + response);
+            return  response.get("fileList");
         } catch (IOException e) {
-            e.printStackTrace();
+            return new ArrayList<String>();
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
     }
-    public void details(String fileName) {
+    public String details(String fileName) {
         try {
             // stelnei request ston tracker gia plirofories enos sugkekrimenou arxeiou
             HashMap<String, String> request = new HashMap<>();
@@ -156,15 +156,15 @@ public class Peer extends Thread {
             trackerWriter.writeObject(request);
 
             HashMap<String, UploadedFile> response = (HashMap<String, UploadedFile>) trackerReader.readObject();
-            System.out.println("Details for file " + fileName + ": " + response);
+            return ("Details for file " + fileName + ": " + response);
         } catch (IOException e) {
-            e.printStackTrace();
+            return "Error fetching file details";
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public void checkActive(String peerIP, int peerPort) {
+    public String checkActive(String peerIP, int peerPort) {
         try {
             // stelenei request ston tracker na dei an kapoios peer einai active
             HashMap<String, String> request = new HashMap<>();
@@ -173,26 +173,29 @@ public class Peer extends Thread {
             HashMap<String, String> response = (HashMap<String, String>) trackerReader.readObject();
 
             if (response.get("active").equals("true")) {
-                System.out.println("Peer " + peerIP + ":" + peerPort + " is active.");
+                return ("Peer " + peerIP + ":" + peerPort + " is active.");
             }
         } catch (Exception e) {
-            e.printStackTrace();
-            System.out.println("Peer " + peerIP + ":" + peerPort + " is not active.");
+        } finally{
+            return ("Peer " + peerIP + ":" + peerPort + " is not active.");
         }
-
     }
 
-    public void simpleDownload(String filename){
+    public String simpleDownload(String filename, String peerIP){
         try {
-            // stelenei request ston tracker na dei an kapoios peer einai active
             HashMap<String, String> request = new HashMap<>();
             request.put("type", "simpleDownload");
             request.put("filename", filename);
 
+            Socket peerSocket = new Socket();
+
+
             HashMap<String, byte[]> response = (HashMap<String, byte[]>) trackerReader.readObject();
             this.writeFile(filename, response.get("content"));
+
+            return "Downloaded file " + filename;
         } catch (Exception e) {
-            e.printStackTrace();
+            return "Failed to download file " + filename;
         }
     }
 

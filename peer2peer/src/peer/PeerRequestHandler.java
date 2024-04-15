@@ -41,6 +41,7 @@ public class PeerRequestHandler {
     }
 
     public void handleSimpleDownload(HashMap<String,String> request) throws IOException {
+        //TODO: handle not existing file
         String filename = request.get("filename");
         Path path = Paths.get(filename);
         byte[] content = Files.readAllBytes(path);
