@@ -6,6 +6,7 @@ import java.util.Scanner;
 
 public class PeerInit {
     static Scanner scanner = new Scanner(System.in);
+    static String trackerAddress = "localhost";
     static Peer peer;
 
     static String sharedDir;
@@ -34,7 +35,7 @@ public class PeerInit {
         System.out.println("\nPassword: ");
         String password = scanner.nextLine();
 
-        peer = new Peer(username,password, sharedDir );
+        peer = new Peer(username,password, sharedDir,trackerAddress );
         System.out.println(peer.logIn());
         mainScreen();
     }
@@ -44,7 +45,7 @@ public class PeerInit {
         System.out.println("\nPassword: ");
         String password = scanner.nextLine();
 
-        peer = new Peer(username,password, sharedDir );
+        peer = new Peer(username,password, sharedDir,trackerAddress);
         System.out.println("\n" + peer.register());
         mainScreen();
     }

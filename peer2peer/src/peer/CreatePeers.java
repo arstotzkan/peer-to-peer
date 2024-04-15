@@ -6,6 +6,7 @@ import java.util.Scanner;
 public class CreatePeers {
     /*Class that initializes a number of Peer objects in this Machine*/
     public static void main(String[] args) throws IOException {
+        final String trackerAddress = "localhost";
         int numberOfPeers = -1;
         Scanner scanner = new Scanner(System.in);
         while (numberOfPeers < 1 || numberOfPeers > 1000) {
@@ -14,7 +15,7 @@ public class CreatePeers {
         }
 
         for (int i = 1; i <= numberOfPeers ;i++){
-            Peer p = new Peer("peer" + i, "pwd"+i, "dir"+i ); //TODO: integrate sharedDirPath
+            Peer p = new Peer("peer" + i, "pwd"+i, "dir"+i , trackerAddress); //TODO: integrate sharedDirPath
             p.register();
             p.logIn();
         }

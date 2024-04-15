@@ -19,9 +19,10 @@ public class Peer extends Thread {
     private Socket trackerSocket;
     private ObjectOutputStream trackerWriter;
     private ObjectInputStream trackerReader;
+
     private static final int tracker_port = 12345; //to allazo me to actual port
 
-    public Peer(String name, String password, String sharedDirPath) throws IOException {
+    public Peer(String name, String password, String sharedDirPath, String trackerAddress) throws IOException {
         this.name = name;
         this.password = password;
         this.server = new ServerSocket();
@@ -34,7 +35,7 @@ public class Peer extends Thread {
         }
 
         // Connect to the tracker
-        trackerSocket = new Socket("tracker_address", tracker_port); // Replace kai edo
+        trackerSocket = new Socket(trackerAddress, tracker_port);
         trackerWriter = new ObjectOutputStream(trackerSocket.getOutputStream());
         trackerReader = new ObjectInputStream(trackerSocket.getInputStream());
     }
