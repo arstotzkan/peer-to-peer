@@ -52,7 +52,7 @@ public class Peer extends Thread {
             while (true) {
                 /* Accept the connection */
                 req = server.accept();
-                Thread reqThread = new PeerRequestHandler(req);
+                Thread reqThread = new PeerRequestHandler(req, this.sharedDirPath);
                 reqThread.start();
             }
 

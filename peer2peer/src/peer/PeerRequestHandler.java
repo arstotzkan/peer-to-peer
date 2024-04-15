@@ -2,6 +2,7 @@ package peer;
 
 import models.UploadedFile;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -15,12 +16,15 @@ public class PeerRequestHandler extends Thread {
     /*Will be used mostly when sending files to another peer*/
     ObjectInputStream in;
     ObjectOutputStream out;
+
+    String sharedDirPath;
     String sender;
 
-    public PeerRequestHandler(Socket req) throws IOException {
+    public PeerRequestHandler(Socket req, String path) throws IOException {
         this.out = new ObjectOutputStream(req.getOutputStream());
         this.in = new ObjectInputStream(req.getInputStream());
         this.sender =  req.getRemoteSocketAddress().toString();
+        this.sharedDirPath = path;
     }
 
     public void run() {
@@ -46,8 +50,8 @@ public class PeerRequestHandler extends Thread {
 
     public void handleSimpleDownload(HashMap<String,String> request) throws IOException {
         //TODO: handle not existing file
-        String filename = request.get("filename");
-        Path path = Paths.get(filename);
+        String filepath = this.sharedDirPath + File.separator + request.get("filename");
+        Path path = Paths.get(filepath);
         byte[] content = Files.readAllBytes(path);
 
         HashMap<String, byte[]> response = new HashMap<>();
