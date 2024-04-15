@@ -79,7 +79,7 @@ public class TrackerMemory {
 	public ArrayList<String> getListUserNames(){
         UserNamesStr.clear();//delete previous element in list
 		for (User u: users){
-			String name = u.getName();
+			String name = u.getUsername();
 			UserNamesStr.add(name);			
         }
         return UserNamesStr;
@@ -92,7 +92,7 @@ public class TrackerMemory {
 	public ArrayList<String> getListOnlineUserNames(){
         OnlineUserNamesStr.clear();//delete previous element in list
 		for (OnlineUser o: loggedInUsers){
-			String name = o.getName();
+			String name = o.getUsername();
 			OnlineUserNamesStr.add(name);			
         }
         return OnlineUserNamesStr;
