@@ -14,7 +14,7 @@ public class CreatePeers {
         }
 
         for (int i = 0; i < numberOfPeers ;i++){
-            Peer p = new Peer("peer" + i, "pwd"+i, "" ); //TODO: integrate sharedDirPath
+            Peer p = new Peer("peer" + i, "pwd"+i, "dir"+i ); //TODO: integrate sharedDirPath
             p.register();
             p.logIn();
         }
