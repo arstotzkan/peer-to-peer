@@ -13,7 +13,7 @@ public class CreatePeers {
             numberOfPeers = scanner.nextInt(); //taking number of workers from args
         }
 
-        for (int i = 0; i < numberOfPeers ;i++){
+        for (int i = 1; i <= numberOfPeers ;i++){
             Peer p = new Peer("peer" + i, "pwd"+i, "dir"+i ); //TODO: integrate sharedDirPath
             p.register();
             p.logIn();
