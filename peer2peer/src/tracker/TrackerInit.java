@@ -1,8 +1,16 @@
 package tracker;
 
+import java.io.IOException;
+
 public class TrackerInit {
     /*Class that initializes a Tracker in this Machine*/
     public static void main(String[] args) {
-        System.out.println("Hello world!");
+        try {
+            Tracker tracker = new Tracker(12345); // to port
+            tracker.start(); // start ton tracker server
+            System.out.println("Tracker started.");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
