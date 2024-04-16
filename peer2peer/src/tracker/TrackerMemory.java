@@ -98,12 +98,12 @@ public class TrackerMemory {
 	/*
 	//returns an ArrayList with the names of all the users in Tracker's Memory 
 	public ArrayList<String> getListUserNames(){
-        UserNamesStr.clear();//delete previous element in list
+        ArrayList<String> userNamesStr = new ArrayList<>();
 		for (User u: users){
 			String name = u.getUsername();
-			UserNamesStr.add(name);			
+			userNamesStr.add(name);			
         }
-        return UserNamesStr;
+        return userNamesStr;
         
     }
 	*/
@@ -111,12 +111,12 @@ public class TrackerMemory {
 	/*
 	//returns an ArrayList with the names of all the online_users in Tracker's Memory 
 	public ArrayList<String> getListOnlineUserNames(){
-        OnlineUserNamesStr.clear();//delete previous element in list
+        ArrayList<String> onlineuserNamesStr = new ArrayList<>();
 		for (OnlineUser o: loggedInUsers){
 			String name = o.getUsername();
-			OnlineUserNamesStr.add(name);			
+			onlineuserNamesStr.add(name);			
         }
-        return OnlineUserNamesStr;
+        return onlineuserNamesStr;
         
     }
 	*/
