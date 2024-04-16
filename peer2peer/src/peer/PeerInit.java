@@ -56,31 +56,19 @@ public class PeerInit {
 
         if (fileList.size() > 0){
             System.out.println("\n\n" + fileList);
-            System.out.println("\nSelect filename to get details from: ");
+            System.out.println("\nSelect filename to download: ");
             String filename = scanner.nextLine();
 
-            fileDetailsScreen(filename);
-        } else {
-            mainScreen();
-        }
-    }
-    private static void fileDetailsScreen(String filename){
-        String details = peer.details(filename);
-
-        if (!details.contains("Error")){
-            System.out.println("\n\n" + details);
-            System.out.println("\nSelect peer to get file from: ");
-            String peerUsername = scanner.nextLine();
-            downloadFileScreen(filename,peerUsername);
+            downloadFileScreen(filename);
         } else {
             mainScreen();
         }
     }
 
-    private static void downloadFileScreen(String filename, String peerUsername){
-        String downloadMessage = peer.simpleDownload(filename, peerUsername);
-        System.out.println(downloadMessage);
-        fileDetailsScreen(filename);
+    private static void downloadFileScreen(String filename){
+        String downloadMessage = peer.downloadFile(filename);
+        System.out.println("\n\n" + downloadMessage);
+        mainScreen();
 
     }
 }

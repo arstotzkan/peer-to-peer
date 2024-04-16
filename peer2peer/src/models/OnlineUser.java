@@ -11,6 +11,12 @@ public class OnlineUser extends User{
 		this.address = address;
 	}
 
+	public OnlineUser(){
+		super("", "");
+		this.tokenID = "";
+		this.address = "";
+	}
+
     public String getTokenID() {
 		return tokenID;
 	}
