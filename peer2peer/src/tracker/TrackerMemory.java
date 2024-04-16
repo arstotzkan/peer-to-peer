@@ -4,6 +4,7 @@ import models.OnlineUser;
 import models.UploadedFile;
 import models.User;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -13,11 +14,7 @@ public class TrackerMemory {
     ConcurrentLinkedQueue<OnlineUser> loggedInUsers = new ConcurrentLinkedQueue<OnlineUser>();
     ConcurrentLinkedQueue<UploadedFile> fileNames = new ConcurrentLinkedQueue<UploadedFile>();
 
-    ArrayList<String> fileNamesStr = new ArrayList<>(); 
-	//ArrayList<String> UserNamesStr = new ArrayList();
-	//ArrayList<String> OnlineUserNamesStr = new ArrayList();
 
-    
 
     public ConcurrentLinkedQueue<User> getUsers(){
         return users;
@@ -63,8 +60,8 @@ public class TrackerMemory {
 
     //returns an ArrayList with the names of all the files in Tracker's Memory 
 	public ArrayList<String> getListFileNames(){
-        fileNamesStr.clear();//delete previous element in list
-		for (UploadedFile f: fileNames){
+        ArrayList<String> fileNamesStr = new ArrayList<>();
+        for (UploadedFile f: fileNames){
 			String name = f.getName();
 			fileNamesStr.add(name);			
         }
