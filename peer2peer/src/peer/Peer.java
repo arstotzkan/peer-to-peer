@@ -109,9 +109,9 @@ public class Peer extends Thread {
 
             // Check response from tracker
             if (response.get("message").equals("Succesfully logged in") ) {
-                return "Registration successful.";
+                return "Failed to login.";
             } else {
-                return "Registration failed: " + response.get("message");
+                return "Failed to login: " + response.get("message");
             }
         } catch (IOException e) {
             return "Registration failed: " + e.getMessage();
@@ -137,7 +137,7 @@ public class Peer extends Thread {
                 return "Logout failed: " + response.get("message");
             }
         } catch (IOException e) {
-            return "Registration failed: " + e.getMessage();
+            return "Logout failed: " + e.getMessage();
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
@@ -193,7 +193,7 @@ public class Peer extends Thread {
         try {
             // stelnei request ston tracker gia plirofories enos sugkekrimenou arxeiou
             HashMap<String, String> request = new HashMap<>();
-            request.put("type", "listRequest");
+            request.put("type", "detailsRequest");
             request.put("filename", fileName);
             trackerWriter.writeObject(request);
 
