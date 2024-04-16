@@ -9,8 +9,10 @@ public class Tracker extends Thread{
     ServerSocket server;
     TrackerMemory memory = new TrackerMemory();
 
+    int port;
+
     public Tracker(int port) throws IOException {
-        this.server = new ServerSocket(port);
+        this.port = port;
     }
 
     public void run(){
@@ -20,7 +22,7 @@ public class Tracker extends Thread{
         Socket req = null;
         try {
             /* Create Server Socket */
-            server = new ServerSocket(12345, 100); //socket for users
+            server = new ServerSocket(this.port, 100); //socket for users
 
             while (true) {
                 /* Accept the connection */
