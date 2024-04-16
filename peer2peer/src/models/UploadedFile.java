@@ -6,7 +6,7 @@ public class UploadedFile {
     
 
      String name;
-     ArrayList<String> usersWithFile;
+     ArrayList<OnlineUser> usersWithFile;
 
      public UploadedFile(){
         usersWithFile = new ArrayList<>();
@@ -17,10 +17,8 @@ public class UploadedFile {
         usersWithFile = new ArrayList<>();
         this.name=name;
      }
-     public void addUserToTheList(String username){
-        usersWithFile.add(username);
-     }
-     public ArrayList<String> getUsersWithFile(){
+
+     public ArrayList<OnlineUser> getUsersWithFile(){
         return usersWithFile;
      }
 

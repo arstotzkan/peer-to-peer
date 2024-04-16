@@ -1,6 +1,8 @@
 package peer;
 
+import models.OnlineUser;
 import models.UploadedFile;
+import models.User;
 import tracker.TrackerRequestHandler;
 
 import java.io.*;
@@ -8,6 +10,8 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
+
+import static java.lang.Double.POSITIVE_INFINITY;
 
 
 public class Peer extends Thread {
@@ -177,7 +181,15 @@ public class Peer extends Thread {
             throw new RuntimeException(e);
         }
     }
-    public String details(String fileName) {
+
+    public String downloadFile(String filename){
+        UploadedFile file = details(filename);
+        OnlineUser best = findBestPeer(file);
+        return simpleDownload(filename, best.getAddress());
+    }
+
+
+    public UploadedFile details(String fileName) {
         try {
             // stelnei request ston tracker gia plirofories enos sugkekrimenou arxeiou
             HashMap<String, String> request = new HashMap<>();
@@ -186,15 +198,16 @@ public class Peer extends Thread {
             trackerWriter.writeObject(request);
 
             HashMap<String, UploadedFile> response = (HashMap<String, UploadedFile>) trackerReader.readObject();
-            return ("Details for file " + fileName + ": " + response);
+            return response.get("details");
         } catch (IOException e) {
-            return "Error fetching file details";
+            throw new RuntimeException(e);
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public String checkActive(String peerIP, int peerPort) {
+
+    public String checkActive(User peer) {
         try {
             // stelenei request ston tracker na dei an kapoios peer einai active
             HashMap<String, String> request = new HashMap<>();
@@ -203,12 +216,33 @@ public class Peer extends Thread {
             HashMap<String, String> response = (HashMap<String, String>) trackerReader.readObject();
 
             if (response.get("active").equals("true")) {
-                return ("Peer " + peerIP + ":" + peerPort + " is active.");
+                return ("Peer " + peer.getUsername() + " is active.");
             }
         } catch (Exception e) {
         } finally{
-            return ("Peer " + peerIP + ":" + peerPort + " is not active.");
+            return ("Peer " + peer.getUsername() + " is not active.");
         }
+    }
+
+    public OnlineUser findBestPeer(UploadedFile file){
+        double max = POSITIVE_INFINITY;
+        OnlineUser bestUser = new OnlineUser();
+
+        for (OnlineUser u: file.getUsersWithFile()){
+            long begin = System.currentTimeMillis();
+            String msg = checkActive(u);
+            long end = System.currentTimeMillis();
+
+            if (msg.contains("is active.")){
+                double score = (end - begin) * (Math.pow(0.75, u.getCountDownloads()) *  Math.pow(1.25, u.getCountFailures()) );
+
+                if (score < max){
+                    max = score;
+                    bestUser = u;
+                }
+            }
+        }
+        return bestUser;
     }
 
     public String simpleDownload(String filename, String peerIP){
