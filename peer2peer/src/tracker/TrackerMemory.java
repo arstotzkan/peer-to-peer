@@ -4,9 +4,15 @@ import models.OnlineUser;
 import models.UploadedFile;
 import models.User;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+
 import java.util.ArrayList;
 import java.util.Iterator;
+
 import java.util.concurrent.ConcurrentLinkedQueue;
+
 
 
 public class TrackerMemory {
@@ -14,6 +20,11 @@ public class TrackerMemory {
     ConcurrentLinkedQueue<OnlineUser> loggedInUsers = new ConcurrentLinkedQueue<OnlineUser>();
     ConcurrentLinkedQueue<UploadedFile> fileNames = new ConcurrentLinkedQueue<UploadedFile>();
 
+
+    public TrackerMemory() {
+        //load methodos ston constructor
+        loadFileNames();
+    }
 
 
     public ConcurrentLinkedQueue<User> getUsers(){
@@ -28,6 +39,19 @@ public class TrackerMemory {
         return fileNames;
     }
 
+    private void loadFileNames() {
+        try (BufferedReader reader = new BufferedReader(new FileReader("fileDownloadList.txt"))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                // neo antikimeno gia kathe new name
+                UploadedFile file = new UploadedFile(line);
+                // edo to kanei add
+                fileNames.add(file);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     public User getUser(String username){
         for (User u: users){
