@@ -13,6 +13,10 @@ public class TrackerMemory {
     ConcurrentLinkedQueue<OnlineUser> loggedInUsers = new ConcurrentLinkedQueue<OnlineUser>();
     ConcurrentLinkedQueue<UploadedFile> fileNames = new ConcurrentLinkedQueue<UploadedFile>();
 
+    ArrayList<String> fileNamesStr = new ArrayList<>(); 
+	//ArrayList<String> UserNamesStr = new ArrayList();
+	//ArrayList<String> OnlineUserNamesStr = new ArrayList();
+
     
 
     public ConcurrentLinkedQueue<User> getUsers(){
@@ -56,6 +60,45 @@ public class TrackerMemory {
         }
         return null;
     }
+
+    //returns an ArrayList with the names of all the files in Tracker's Memory 
+	public ArrayList<String> getListFileNames(){
+        fileNamesStr.clear();//delete previous element in list
+		for (UploadedFile f: fileNames){
+			String name = f.getName();
+			fileNamesStr.add(name);			
+        }
+        return fileNamesStr;
+        
+    }
+	
+	
+	
+	/*
+	//returns an ArrayList with the names of all the users in Tracker's Memory 
+	public ArrayList<String> getListUserNames(){
+        UserNamesStr.clear();//delete previous element in list
+		for (User u: users){
+			String name = u.getUsername();
+			UserNamesStr.add(name);			
+        }
+        return UserNamesStr;
+        
+    }
+	*/
+	
+	/*
+	//returns an ArrayList with the names of all the online_users in Tracker's Memory 
+	public ArrayList<String> getListOnlineUserNames(){
+        OnlineUserNamesStr.clear();//delete previous element in list
+		for (OnlineUser o: loggedInUsers){
+			String name = o.getUsername();
+			OnlineUserNamesStr.add(name);			
+        }
+        return OnlineUserNamesStr;
+        
+    }
+	*/
 
     public void addUser(User user1){
         users.add(user1);
