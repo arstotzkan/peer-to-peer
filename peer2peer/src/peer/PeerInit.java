@@ -37,8 +37,14 @@ public class PeerInit {
         String password = scanner.nextLine();
 
         peer = new Peer(username,password, sharedDir,trackerAddress );
-        System.out.println(peer.logIn());
-        mainScreen();
+
+        String loginMessage = peer.logIn();
+        System.out.println(loginMessage);
+
+        if (loginMessage.contains("Login successful"))
+            mainScreen();
+        else
+            logInOrRegisterScreen();
     }
     private static void registerScreen() throws IOException {
         System.out.println("\n\nUsername: ");
@@ -47,8 +53,13 @@ public class PeerInit {
         String password = scanner.nextLine();
 
         peer = new Peer(username,password, sharedDir,trackerAddress);
-        System.out.println("\n" + peer.register());
-        mainScreen();
+        String registerMessage = peer.register();
+        System.out.println("\n" + registerMessage);
+
+        if (registerMessage.contains("Registration successful"))
+            mainScreen();
+        else
+            logInOrRegisterScreen();
     }
 
     private static void mainScreen(){

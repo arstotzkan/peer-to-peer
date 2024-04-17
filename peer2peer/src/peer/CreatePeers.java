@@ -10,7 +10,7 @@ public class CreatePeers {
         int numberOfPeers = 6;
         for (int i = 1; i <= numberOfPeers ;i++){
             Peer p = new Peer("peer" + i, "pwd"+i, "src/peer/dir"+i , trackerAddress); //TODO: integrate sharedDirPath
-            //p.start();
+            p.start();
             System.out.println(p.register() + " for " + i );
             System.out.println(p.logIn() + " for " + i);
         }

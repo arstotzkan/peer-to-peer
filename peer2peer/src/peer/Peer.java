@@ -49,6 +49,7 @@ public class Peer extends Thread {
     }
 
     public void run(){
+        System.out.println("Setting up peer server");
         this.openPeerServer();
     }
 
@@ -56,7 +57,7 @@ public class Peer extends Thread {
         Socket req = null;
         try {
             /* Create Server Socket */
-            server = new ServerSocket();
+            server = new ServerSocket(0);
 
             while (true) {
                 /* Accept the connection */
