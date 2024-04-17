@@ -47,6 +47,10 @@ public class TrackerRequestHandler extends Thread{
                 case "detailsRequest":
                     this.handleDetailsRequest(request);
                     break;
+                case "upload":
+                    this.handleUploadRequest(request);
+                    break;
+
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -105,7 +109,7 @@ public class TrackerRequestHandler extends Thread{
         }
 
         this.memory.removeOnlineUser(username);
-
+        //TODO: delete usedfrom all files
         HashMap<String, String> response = new HashMap<>();
         response.put("message", "Succesfully logged out");
         out.writeObject(response);
@@ -113,8 +117,6 @@ public class TrackerRequestHandler extends Thread{
 
     public void handleListRequest(HashMap<String,String> request) throws IOException {
         this.memory.getFileNames();
-        //TODO: TAKE ONLY NAMES
-
         HashMap<String, ArrayList<String>> response = new HashMap<>();
         response.put("fileList", this.memory.getListFileNames());
         out.writeObject(response);
@@ -126,5 +128,25 @@ public class TrackerRequestHandler extends Thread{
         HashMap<String, UploadedFile> response = new HashMap<>();
         response.put("details", file);
         out.writeObject(response);
+    }
+
+    public void handleUploadRequest(HashMap <String, String> request) throws IOException{
+        String filename = request.get("filename");
+        String username = request.get("username");
+
+        UploadedFile f = this.memory.getUploadedFile(filename);
+        OnlineUser user = this.memory.getOnlineUser(username);
+
+        HashMap<String, String> response = new HashMap<>();
+
+        if (f == null || user == null){
+            response.put("details", "Failure");
+        }else{
+            f.getUsersWithFile().add(user); //TODO: check if already uploaded
+            response.put("details", "Success");
+        }
+
+        out.writeObject(response);
+
     }
 }

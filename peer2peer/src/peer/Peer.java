@@ -10,7 +10,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
-
+import models.UploadedFile;
 import static java.lang.Double.POSITIVE_INFINITY;
 
 
@@ -24,6 +24,7 @@ public class Peer extends Thread {
     private ObjectOutputStream trackerWriter;
     private ObjectInputStream trackerReader;
 
+    private String trackerAddress;
     private static final int tracker_port = 12345; //to allazo me to actual port
 
     public Peer(String name, String password, String sharedDirPath, String trackerAddress) throws IOException {
@@ -31,17 +32,20 @@ public class Peer extends Thread {
         this.password = password;
         this.server = new ServerSocket();
         this.sharedDirPath = sharedDirPath;
-
+        this.trackerAddress = trackerAddress;
         // Create shared directory if it doesn't exist
         File sharedDir = new File(sharedDirPath);
         if (!sharedDir.exists()) {
             sharedDir.mkdirs(); // The mkdirs() method is used to create the directory specified by the File object. If the directory already exists, it will do nothing and return false.
         }
-
         // Connect to the tracker
+    }
+
+    private void createSocket() throws IOException {
         trackerSocket = new Socket(trackerAddress, tracker_port);
         trackerWriter = new ObjectOutputStream(trackerSocket.getOutputStream());
         trackerReader = new ObjectInputStream(trackerSocket.getInputStream());
+
     }
 
     public void run(){
@@ -74,6 +78,7 @@ public class Peer extends Thread {
 
     public String register() {
         try {
+            createSocket();
             // Send registration request to tracker
             HashMap<String, String> request = new HashMap<>();
             request.put("type", "register");
@@ -98,6 +103,8 @@ public class Peer extends Thread {
 
     public String logIn() {
         try {
+            createSocket();
+
             // Send login request to tracker
             HashMap<String, String> request = new HashMap<>();
             request.put("type", "logIn");
@@ -109,12 +116,13 @@ public class Peer extends Thread {
 
             // Check response from tracker
             if (response.get("message").equals("Succesfully logged in") ) {
-                return "Failed to login.";
+                return "Login successful.";
             } else {
                 return "Failed to login: " + response.get("message");
             }
         } catch (IOException e) {
-            return "Registration failed: " + e.getMessage();
+            throw new RuntimeException(e);
+            //return "Login failed: " + e.getMessage();
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
@@ -122,6 +130,8 @@ public class Peer extends Thread {
 
     public String logOut() {
         try {
+            createSocket();
+
             // Send logout request to tracker
             HashMap<String, String> request = new HashMap<>();
             request.put("type", "logOut");
@@ -142,32 +152,66 @@ public class Peer extends Thread {
             throw new RuntimeException(e);
         }
     }
-    public void loadInitialFiles() {
-        try {
-            BufferedReader reader = new BufferedReader(new FileReader("fileDownloadList.txt"));
-            String line;
-            while ((line = reader.readLine()) != null) { // sinexizei oso den einai null
-                String filePath = sharedDirPath + File.separator + line;
-                //On Windows, for example, the file separator is \, while on Unix-based systems (such as Linux and macOS), it is /.
-                //By using File.separator, your code becomes platform-independent because it adapts to the correct file separator character based on the underlying operating system.
-                // This ensures that your file paths are correctly formatted regardless of the platform on which your code is running ( to brika sto SO)
-                File file = new File(filePath);
-                if (file.exists()) {
-                    // an uparxei sinexizei sto epomeno
-                    continue;
-                }
+//    public void loadInitialFiles() {
+//        try {
+//            BufferedReader reader = new BufferedReader(new FileReader("fileDownloadList.txt"));
+//            String line;
+//            while ((line = reader.readLine()) != null) { // sinexizei oso den einai null
+//                String filePath = sharedDirPath + File.separator + line;
+//                //On Windows, for example, the file separator is \, while on Unix-based systems (such as Linux and macOS), it is /.
+//                //By using File.separator, your code becomes platform-independent because it adapts to the correct file separator character based on the underlying operating system.
+//                // This ensures that your file paths are correctly formatted regardless of the platform on which your code is running ( to brika sto SO)
+//                File file = new File(filePath);
+//                if (file.exists()) {
+//                    // an uparxei sinexizei sto epomeno
+//                    continue;
+//                }
+//
+//                // create a file ( einai empty mporei na thelei allagi edo)
+//                file.createNewFile();
+//            }
+//            reader.close();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
 
-                // create a file ( einai empty mporei na thelei allagi edo)
-                file.createNewFile();
+//    }
+
+    private String uploadFileNames(){
+
+        ArrayList<String> files = new ArrayList<>();
+        int i = 0;
+        final File folder = new File(this.sharedDirPath);
+
+        for (final File fileEntry : folder.listFiles()) {
+            try{
+                if (!fileEntry.isDirectory()) {
+                    createSocket();
+
+                    HashMap<String, String> req = new HashMap<>();
+                    req.put("type", "uploadFileName");
+                    req.put("user", name);
+                    req.put("filename", fileEntry.getName() );
+
+                    HashMap<String, String> response = (HashMap<String, String>) trackerReader.readObject();
+
+                    if (response.get("message").equals("Success") ) {
+                        i++;
+                    }
+
+                }
+            }catch(Exception e){
+
             }
-            reader.close();
-        } catch (IOException e) {
-            e.printStackTrace();
+
         }
+        return "Uploaded " + i + " files";
     }
 
     public ArrayList<String> list() {
         try {
+            createSocket();
+
             // stelnei request sto tracker gia ta available list
             HashMap<String, String> request = new HashMap<>();
             request.put("type", "listRequest");
@@ -191,6 +235,8 @@ public class Peer extends Thread {
 
     public UploadedFile details(String fileName) {
         try {
+            createSocket();
+
             // stelnei request ston tracker gia plirofories enos sugkekrimenou arxeiou
             HashMap<String, String> request = new HashMap<>();
             request.put("type", "detailsRequest");
@@ -209,9 +255,12 @@ public class Peer extends Thread {
 
     public String checkActive(User peer) {
         try {
+            createSocket();
+
             // stelenei request ston tracker na dei an kapoios peer einai active
             HashMap<String, String> request = new HashMap<>();
             request.put("type", "checkActive");
+            trackerWriter.writeObject(request);
 
             HashMap<String, String> response = (HashMap<String, String>) trackerReader.readObject();
 
@@ -247,11 +296,13 @@ public class Peer extends Thread {
 
     public String simpleDownload(String filename, String peerIP){
         try {
+
+            createSocket();
+
             HashMap<String, String> request = new HashMap<>();
             request.put("type", "simpleDownload");
             request.put("filename", filename);
-
-            Socket peerSocket = new Socket();
+            trackerWriter.writeObject(request);
 
 
             HashMap<String, byte[]> response = (HashMap<String, byte[]>) trackerReader.readObject();
@@ -259,7 +310,8 @@ public class Peer extends Thread {
 
             return "Downloaded file " + filename;
         } catch (Exception e) {
-            return "Failed to download file " + filename;
+            throw new RuntimeException(e);
+            //return "Failed to download file " + filename;
         }
     }
 
