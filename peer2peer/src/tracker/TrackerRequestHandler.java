@@ -116,7 +116,7 @@ public class TrackerRequestHandler extends Thread{
         //TODO: TAKE ONLY NAMES
 
         HashMap<String, ArrayList<String>> response = new HashMap<>();
-        response.put("F", new ArrayList<String>());
+        response.put("fileList", this.memory.getListFileNames());
         out.writeObject(response);
     }
     public void handleDetailsRequest(HashMap<String,String> request) throws IOException {
