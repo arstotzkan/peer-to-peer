@@ -61,7 +61,7 @@ public class TrackerRequestHandler extends Thread{
         if (this.memory.getUser(username) != null) {
 
             HashMap<String, String> response = new HashMap<>();
-            response.put("error", "User already exists");
+            response.put("message", "User with this username already exists");
             out.writeObject(response);
             return;
         }
@@ -81,7 +81,7 @@ public class TrackerRequestHandler extends Thread{
         if (this.memory.getUser(username) == null) {
 
             HashMap<String, String> response = new HashMap<>();
-            response.put("error", "User does not exist");
+            response.put("message", "User does not exist");
             out.writeObject(response);
             return;
         }
@@ -99,7 +99,7 @@ public class TrackerRequestHandler extends Thread{
         if (this.memory.getOnlineUser(username) == null) {
 
             HashMap<String, String> response = new HashMap<>();
-            response.put("error", "User is not logged in");
+            response.put("message", "User is not logged in");
             out.writeObject(response);
             return;
         }
