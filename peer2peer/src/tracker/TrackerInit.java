@@ -4,7 +4,7 @@ import java.io.IOException;
 
 public class TrackerInit {
     /*Class that initializes a Tracker in this Machine*/
-    public static void main(String[] args) {
+    public static void main() {
         try {
             Tracker tracker = new Tracker(12345); // to port
             tracker.start(); // start ton tracker server

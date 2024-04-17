@@ -10,10 +10,10 @@ public class PeerInit {
     static Peer peer;
 
     static String sharedDir;
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         sharedDir = args[0];
         trackerAddress = args[1];
-        System.out.println("Hello world!");
+        logInOrRegisterScreen();
     }
 
     private static void logInOrRegisterScreen() throws IOException {

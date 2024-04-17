@@ -7,17 +7,12 @@ public class CreatePeers {
     /*Class that initializes a number of Peer objects in this Machine*/
     public static void main(String[] args) throws IOException {
         final String trackerAddress = args[0];
-        int numberOfPeers = -1;
-        Scanner scanner = new Scanner(System.in);
-        while (numberOfPeers < 1 || numberOfPeers > 1000) {
-            System.out.println("Set number of peers (1-1000) :");
-            numberOfPeers = scanner.nextInt(); //taking number of workers from args
-        }
-
+        int numberOfPeers = 6;
         for (int i = 1; i <= numberOfPeers ;i++){
-            Peer p = new Peer("peer" + i, "pwd"+i, "dir"+i , trackerAddress); //TODO: integrate sharedDirPath
-            p.register();
-            p.logIn();
+            Peer p = new Peer("peer" + i, "pwd"+i, "src/peer/dir"+i , trackerAddress); //TODO: integrate sharedDirPath
+            //p.start();
+            System.out.println(p.register() + " for " + i );
+            System.out.println(p.logIn() + " for " + i);
         }
     }
 
