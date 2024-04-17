@@ -40,7 +40,7 @@ public class TrackerMemory {
     }
 
     private void loadFileNames() {
-        try (BufferedReader reader = new BufferedReader(new FileReader("fileDownloadList.txt"))) {
+        try (BufferedReader reader = new BufferedReader(new FileReader("src/fileDownloadList.txt"))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 // neo antikimeno gia kathe new name
