@@ -10,6 +10,7 @@ import java.io.IOException;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Random;
 
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -19,6 +20,8 @@ public class TrackerMemory {
     ConcurrentLinkedQueue<User> users = new ConcurrentLinkedQueue<User>();
     ConcurrentLinkedQueue<OnlineUser> loggedInUsers = new ConcurrentLinkedQueue<OnlineUser>();
     ConcurrentLinkedQueue<UploadedFile> fileNames = new ConcurrentLinkedQueue<UploadedFile>();
+
+    Random rnd = new Random();	
 
 
     public TrackerMemory() {
@@ -126,6 +129,14 @@ public class TrackerMemory {
     }
 
     public void addOnlineUser(OnlineUser user1){
+        String candidateChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"; //available characters
+        StringBuilder newStr = new StringBuilder();
+        while (newStr.length() < 10) { //length of the string
+            int index = (int) (rnd.nextFloat() * candidateChars.length());
+            newStr.append(candidateChars.charAt(index));
+        }
+        String tokenStr = newStr.toString();//from char to Str
+        user1.setTokenID(tokenStr);//setting the token to user1
         loggedInUsers.add(user1);
     }
 
