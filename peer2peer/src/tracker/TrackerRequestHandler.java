@@ -56,7 +56,16 @@ public class TrackerRequestHandler extends Thread{
     }
     public void handleRegister(HashMap<String,String> request) throws IOException {
 
-        //TODO: HANDLE USERNAME ALREADY EXISTS
+        // elegxos oti an yparxei idi o xristis
+        String username = request.get("username");
+        if (this.memory.getUser(username) != null) {
+
+            HashMap<String, String> response = new HashMap<>();
+            response.put("error", "User already exists");
+            out.writeObject(response);
+            return;
+        }
+
         User newUser = new User(request.get("username"), request.get("password") );
         this.memory.addUser(newUser);
 
@@ -67,7 +76,16 @@ public class TrackerRequestHandler extends Thread{
     public void handleLogIn(HashMap<String,String> request) throws IOException {
         //TODO: function to generate tokenID
 
-        //TODO: HANDLE USER NOT REGISTERED
+        //elegxo an yparxei o xristis
+        String username = request.get("username");
+        if (this.memory.getUser(username) == null) {
+
+            HashMap<String, String> response = new HashMap<>();
+            response.put("error", "User does not exist");
+            out.writeObject(response);
+            return;
+        }
+
         OnlineUser loggedIn = new OnlineUser(request.get("username"),request.get("password"), "", this.sender);
         this.memory.addOnlineUser(loggedIn);
 
@@ -76,9 +94,16 @@ public class TrackerRequestHandler extends Thread{
         out.writeObject(response);
     }
     public void handleLogOut(HashMap<String,String> request) throws IOException {
-        //TODO: HANDLE USER NOT LOGGED IN
-
+       // elegxei an einai login o xristis
         String username = request.get("username");
+        if (this.memory.getOnlineUser(username) == null) {
+
+            HashMap<String, String> response = new HashMap<>();
+            response.put("error", "User is not logged in");
+            out.writeObject(response);
+            return;
+        }
+
         this.memory.removeOnlineUser(username);
 
         HashMap<String, String> response = new HashMap<>();
@@ -89,6 +114,7 @@ public class TrackerRequestHandler extends Thread{
     public void handleListRequest(HashMap<String,String> request) throws IOException {
         this.memory.getFileNames();
         //TODO: TAKE ONLY NAMES
+
         HashMap<String, ArrayList<String>> response = new HashMap<>();
         response.put("fileList", this.memory.getListFileNames());
         out.writeObject(response);
