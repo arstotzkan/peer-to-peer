@@ -31,9 +31,9 @@ public class Main {
     }
 
     private static void logInScreen() throws IOException {
-        System.out.println("\n\nUsername: ");
+        System.out.println("\nUsername: ");
         String username = scanner.nextLine();
-        System.out.println("\nPassword: ");
+        System.out.println("Password: ");
         String password = scanner.nextLine();
 
         peer = new Peer(username,password, sharedDir,trackerAddress );
@@ -64,12 +64,14 @@ public class Main {
 
     private static void mainScreen(){
         ArrayList<String> fileList = peer.list();
+        System.out.println("\n\n" + "File list: \n=========");
 
         if (fileList.size() > 0){
-            System.out.println("\n\n" + fileList);
+            for (String f : fileList)
+                System.out.println(f);
+
             System.out.println("\nSelect filename to download: ");
             String filename = scanner.nextLine();
-
             downloadFileScreen(filename);
         } else {
             mainScreen();
@@ -79,7 +81,5 @@ public class Main {
     private static void downloadFileScreen(String filename){
         String downloadMessage = peer.downloadFile(filename);
         System.out.println("\n\n" + downloadMessage);
-        mainScreen();
-
     }
 }

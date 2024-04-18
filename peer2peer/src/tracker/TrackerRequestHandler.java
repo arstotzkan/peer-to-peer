@@ -17,14 +17,12 @@ public class TrackerRequestHandler extends Thread{
     ObjectInputStream in;
     ObjectOutputStream out;
     String senderAddress;
-    int senderPort;
     TrackerMemory memory;
 
     public TrackerRequestHandler(Socket req , TrackerMemory mem) throws IOException {
         this.out = new ObjectOutputStream(req.getOutputStream());
         this.in = new ObjectInputStream(req.getInputStream());
         this.senderAddress =  req.getInetAddress().getHostAddress();
-        this.senderPort = req.getPort();
         this.memory = mem;
     }
 
@@ -64,6 +62,7 @@ public class TrackerRequestHandler extends Thread{
 
         // elegxos oti an yparxei idi o xristis
         String username = request.get("username");
+        int peerPort = Integer.parseInt(request.get("port"));
         if (this.memory.getUser(username) != null) {
 
             HashMap<String, String> response = new HashMap<>();
@@ -73,7 +72,10 @@ public class TrackerRequestHandler extends Thread{
         }
 
         User newUser = new User(request.get("username"), request.get("password") );
+        OnlineUser loggedIn = new OnlineUser(request.get("username"),request.get("password"), "", this.senderAddress, peerPort);
+
         this.memory.addUser(newUser);
+        this.memory.addOnlineUser(loggedIn);
 
         HashMap<String, String> response = new HashMap<>();
         response.put("message", "Succesfully registered");
@@ -84,6 +86,8 @@ public class TrackerRequestHandler extends Thread{
 
         //elegxo an yparxei o xristis
         String username = request.get("username");
+        int peerPort = Integer.parseInt(request.get("port"));
+
         if (this.memory.getUser(username) == null) {
 
             HashMap<String, String> response = new HashMap<>();
@@ -92,7 +96,7 @@ public class TrackerRequestHandler extends Thread{
             return;
         }
 
-        OnlineUser loggedIn = new OnlineUser(request.get("username"),request.get("password"), "", this.senderAddress, this.senderPort);
+        OnlineUser loggedIn = new OnlineUser(request.get("username"),request.get("password"), "", this.senderAddress, peerPort);
         this.memory.addOnlineUser(loggedIn);
 
         HashMap<String, String> response = new HashMap<>();

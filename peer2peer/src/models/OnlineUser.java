@@ -37,4 +37,8 @@ public class OnlineUser extends User{
 	public int getPort() {
 		return port;
 	}
+
+	public String toString(){
+		return getUsername();
+	}
 }

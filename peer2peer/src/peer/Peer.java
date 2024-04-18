@@ -25,6 +25,7 @@ public class Peer extends Thread {
     private ObjectOutputStream trackerWriter;
     private ObjectInputStream trackerReader;
 
+    private int localPort;
     private String trackerAddress;
     private static final int tracker_port = 12345; //to allazo me to actual port
 
@@ -58,7 +59,12 @@ public class Peer extends Thread {
         try {
             /* Create Server Socket */
             server = new ServerSocket(0);
-            System.out.println(this.name + ": Setting up peer server @port" + server.getLocalPort() );
+            this.localPort = server.getLocalPort();
+            System.out.println(this.name + ": Setting up peer server @port" + localPort );
+
+            System.out.println(getUsername() + ": " +register());
+            System.out.println(getUsername() + ": " +logIn());
+            System.out.println(getUsername() + ": " +uploadFileNames() );
 
             while (true) {
                 /* Accept the connection */
@@ -86,6 +92,7 @@ public class Peer extends Thread {
             request.put("type", "register");
             request.put("username", name);
             request.put("password", password);
+            request.put("port", Integer.toString(localPort) );
 
             trackerWriter.writeObject(request);
             HashMap<String, String> response = (HashMap<String, String>) trackerReader.readObject();
@@ -112,6 +119,7 @@ public class Peer extends Thread {
             request.put("type", "logIn");
             request.put("username", name);
             request.put("password", password);
+            request.put("port", Integer.toString(localPort) );
 
             trackerWriter.writeObject(request);
             HashMap<String, String> response = (HashMap<String, String>) trackerReader.readObject();
@@ -232,9 +240,12 @@ public class Peer extends Thread {
 
     public String downloadFile(String filename){
         UploadedFile file = details(filename);
+        System.out.println("Users with file " + file.getName() + " : " + file.getUsersWithFile());
         OnlineUser best = findBestPeer(file);
-        System.out.println(3);
-        return simpleDownload(filename, best);
+        System.out.println("Best peer: " + best.getUsername());
+        String downloadMessage = simpleDownload(filename, best);
+        uploadFileNames();
+        return downloadMessage;
     }
 
 
@@ -260,7 +271,7 @@ public class Peer extends Thread {
 
     public String checkActive(OnlineUser peer) {
         try {
-            Socket s = new Socket(peer.getAddress(), peer.getPort() - 1);
+            Socket s = new Socket(peer.getAddress(), peer.getPort());
             trackerWriter = new ObjectOutputStream(s.getOutputStream());
             trackerReader = new ObjectInputStream(s.getInputStream());
 
@@ -290,9 +301,9 @@ public class Peer extends Thread {
             long begin = System.currentTimeMillis();
             String msg = checkActive(u);
             long end = System.currentTimeMillis();
-            System.out.println("MESASGE: " + msg);
             if (msg.contains("is active.")){
                 double score = (end - begin) * (Math.pow(0.75, u.getCountDownloads()) *  Math.pow(1.25, u.getCountFailures()) );
+                System.out.println("Peer " + u.getUsername() + " has score: "  + score);
 
                 if (score < max){
                     max = score;
@@ -306,7 +317,7 @@ public class Peer extends Thread {
     public String simpleDownload(String filename, OnlineUser peer){
         try {
             //System.out.println(peer.getAddress()+ " fefe " + peer.getPort());
-            Socket s = new Socket(peer.getAddress(), peer.getPort() - 1);
+            Socket s = new Socket(peer.getAddress(), peer.getPort());
             trackerWriter = new ObjectOutputStream(s.getOutputStream());
             trackerReader = new ObjectInputStream(s.getInputStream());
 
@@ -317,7 +328,6 @@ public class Peer extends Thread {
             trackerWriter.writeObject(request);
 
             HashMap<String, byte[]> response = (HashMap<String, byte[]>) trackerReader.readObject();
-            System.out.println(response.get("file") + " " +  "timwria");
             this.writeFile(filename, response.get("file"));
 
             return "Downloaded file " + filename;
