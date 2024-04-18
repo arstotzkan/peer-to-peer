@@ -5,16 +5,20 @@ public class OnlineUser extends User{
     private String tokenID;
     private String address;
 
-    public OnlineUser(String username, String password, String tokenID, String address) {
+	private int port;
+
+    public OnlineUser(String username, String password, String tokenID, String address, int port) {
 		super(username, password);
 		this.tokenID = tokenID;
 		this.address = address;
+		this.port = port;
 	}
 
 	public OnlineUser(){
 		super("", "");
 		this.tokenID = "";
 		this.address = "";
+		this.port = 0;
 	}
 
     public String getTokenID() {
@@ -30,4 +34,7 @@ public class OnlineUser extends User{
 		this.address = address;
 	}
 
+	public int getPort() {
+		return port;
+	}
 }

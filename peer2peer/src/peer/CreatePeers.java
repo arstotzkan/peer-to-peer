@@ -11,8 +11,9 @@ public class CreatePeers {
         for (int i = 1; i <= numberOfPeers ;i++){
             Peer p = new Peer("peer" + i, "pwd"+i, "src/peer/dir"+i , trackerAddress); //TODO: integrate sharedDirPath
             p.start();
-            System.out.println(p.register() + " for " + i );
-            System.out.println(p.logIn() + " for " + i);
+            System.out.println(p.getUsername() + ": " +p.register());
+            System.out.println(p.getUsername() + ": " +p.logIn());
+            System.out.println(p.getUsername() + ": " +p.uploadFileNames() );
         }
     }
 

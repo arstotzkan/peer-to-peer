@@ -53,6 +53,7 @@ public class PeerRequestHandler extends Thread {
         String filepath = this.sharedDirPath + File.separator + request.get("filename");
         Path path = Paths.get(filepath);
         byte[] content = Files.readAllBytes(path);
+        System.out.println("TEST 1: " + filepath + "TEST 2: " +  content);
 
         HashMap<String, byte[]> response = new HashMap<>();
         response.put("file", content);

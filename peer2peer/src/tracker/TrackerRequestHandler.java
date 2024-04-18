@@ -16,13 +16,15 @@ public class TrackerRequestHandler extends Thread{
     /*WIP, handle requests*/
     ObjectInputStream in;
     ObjectOutputStream out;
-    String sender;
+    String senderAddress;
+    int senderPort;
     TrackerMemory memory;
 
     public TrackerRequestHandler(Socket req , TrackerMemory mem) throws IOException {
         this.out = new ObjectOutputStream(req.getOutputStream());
         this.in = new ObjectInputStream(req.getInputStream());
-        this.sender =  req.getRemoteSocketAddress().toString();
+        this.senderAddress =  req.getInetAddress().getHostAddress();
+        this.senderPort = req.getPort();
         this.memory = mem;
     }
 
@@ -47,7 +49,7 @@ public class TrackerRequestHandler extends Thread{
                 case "detailsRequest":
                     this.handleDetailsRequest(request);
                     break;
-                case "upload":
+                case "uploadFileName":
                     this.handleUploadRequest(request);
                     break;
 
@@ -90,7 +92,7 @@ public class TrackerRequestHandler extends Thread{
             return;
         }
 
-        OnlineUser loggedIn = new OnlineUser(request.get("username"),request.get("password"), "", this.sender);
+        OnlineUser loggedIn = new OnlineUser(request.get("username"),request.get("password"), "", this.senderAddress, this.senderPort);
         this.memory.addOnlineUser(loggedIn);
 
         HashMap<String, String> response = new HashMap<>();
@@ -137,13 +139,14 @@ public class TrackerRequestHandler extends Thread{
         UploadedFile f = this.memory.getUploadedFile(filename);
         OnlineUser user = this.memory.getOnlineUser(username);
 
+
         HashMap<String, String> response = new HashMap<>();
 
         if (f == null || user == null){
-            response.put("details", "Failure");
+            response.put("message", "Failure");
         }else{
             f.getUsersWithFile().add(user); //TODO: check if already uploaded
-            response.put("details", "Success");
+            response.put("message", "Success");
         }
 
         out.writeObject(response);

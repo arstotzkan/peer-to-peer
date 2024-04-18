@@ -6,6 +6,7 @@ import models.User;
 import tracker.TrackerRequestHandler;
 
 import java.io.*;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -49,7 +50,6 @@ public class Peer extends Thread {
     }
 
     public void run(){
-        System.out.println("Setting up peer server");
         this.openPeerServer();
     }
 
@@ -58,6 +58,7 @@ public class Peer extends Thread {
         try {
             /* Create Server Socket */
             server = new ServerSocket(0);
+            System.out.println(this.name + ": Setting up peer server @port" + server.getLocalPort() );
 
             while (true) {
                 /* Accept the connection */
@@ -178,24 +179,26 @@ public class Peer extends Thread {
 
 //    }
 
-    private String uploadFileNames(){
+    public String uploadFileNames(){
 
-        ArrayList<String> files = new ArrayList<>();
+//        ArrayList<String> files = new ArrayList<>();
         int i = 0;
         final File folder = new File(this.sharedDirPath);
 
-        for (final File fileEntry : folder.listFiles()) {
+        File[] filesInDir = folder.listFiles();
+        for (int j =0; j < filesInDir.length; j++ ) {
             try{
+                File fileEntry = filesInDir[j];
                 if (!fileEntry.isDirectory()) {
                     createSocket();
 
                     HashMap<String, String> req = new HashMap<>();
                     req.put("type", "uploadFileName");
-                    req.put("user", name);
+                    req.put("username", name);
                     req.put("filename", fileEntry.getName() );
+                    trackerWriter.writeObject(req);
 
                     HashMap<String, String> response = (HashMap<String, String>) trackerReader.readObject();
-
                     if (response.get("message").equals("Success") ) {
                         i++;
                     }
@@ -230,7 +233,8 @@ public class Peer extends Thread {
     public String downloadFile(String filename){
         UploadedFile file = details(filename);
         OnlineUser best = findBestPeer(file);
-        return simpleDownload(filename, best.getAddress());
+        System.out.println(3);
+        return simpleDownload(filename, best);
     }
 
 
@@ -254,9 +258,12 @@ public class Peer extends Thread {
     }
 
 
-    public String checkActive(User peer) {
+    public String checkActive(OnlineUser peer) {
         try {
-            createSocket();
+            Socket s = new Socket(peer.getAddress(), peer.getPort() - 1);
+            trackerWriter = new ObjectOutputStream(s.getOutputStream());
+            trackerReader = new ObjectInputStream(s.getInputStream());
+
 
             // stelenei request ston tracker na dei an kapoios peer einai active
             HashMap<String, String> request = new HashMap<>();
@@ -267,9 +274,10 @@ public class Peer extends Thread {
 
             if (response.get("active").equals("true")) {
                 return ("Peer " + peer.getUsername() + " is active.");
+            } else {
+                return ("Peer " + peer.getUsername() + " is not active.");
             }
         } catch (Exception e) {
-        } finally{
             return ("Peer " + peer.getUsername() + " is not active.");
         }
     }
@@ -282,7 +290,7 @@ public class Peer extends Thread {
             long begin = System.currentTimeMillis();
             String msg = checkActive(u);
             long end = System.currentTimeMillis();
-
+            System.out.println("MESASGE: " + msg);
             if (msg.contains("is active.")){
                 double score = (end - begin) * (Math.pow(0.75, u.getCountDownloads()) *  Math.pow(1.25, u.getCountFailures()) );
 
@@ -295,30 +303,39 @@ public class Peer extends Thread {
         return bestUser;
     }
 
-    public String simpleDownload(String filename, String peerIP){
+    public String simpleDownload(String filename, OnlineUser peer){
         try {
+            //System.out.println(peer.getAddress()+ " fefe " + peer.getPort());
+            Socket s = new Socket(peer.getAddress(), peer.getPort() - 1);
+            trackerWriter = new ObjectOutputStream(s.getOutputStream());
+            trackerReader = new ObjectInputStream(s.getInputStream());
 
-            createSocket();
 
             HashMap<String, String> request = new HashMap<>();
             request.put("type", "simpleDownload");
             request.put("filename", filename);
             trackerWriter.writeObject(request);
 
-
             HashMap<String, byte[]> response = (HashMap<String, byte[]>) trackerReader.readObject();
-            this.writeFile(filename, response.get("content"));
+            System.out.println(response.get("file") + " " +  "timwria");
+            this.writeFile(filename, response.get("file"));
 
             return "Downloaded file " + filename;
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            //throw new RuntimeException(e);
+            e.printStackTrace();
+            return "";
             //return "Failed to download file " + filename;
         }
     }
 
     private void writeFile(String filename, byte[] content) throws IOException {
-        File file = new File(filename);
+        File file = new File(this.sharedDirPath + File.separator + filename);
         OutputStream os = new FileOutputStream(file);
         os.write(content);
+    }
+
+    public String getUsername() {
+        return name;
     }
 }
