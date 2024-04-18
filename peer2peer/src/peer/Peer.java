@@ -20,10 +20,9 @@ public class Peer extends Thread {
     private String password;
     private ServerSocket server;
     private String sharedDirPath;
-    private String tokenId; // meta to login pairno auto
-    private Socket trackerSocket;
-    private ObjectOutputStream trackerWriter;
-    private ObjectInputStream trackerReader;
+    private Socket socket;
+    private ObjectOutputStream out;
+    private ObjectInputStream in;
 
     private int localPort;
     private String trackerAddress;
@@ -43,10 +42,10 @@ public class Peer extends Thread {
         // Connect to the tracker
     }
 
-    private void createSocket() throws IOException {
-        trackerSocket = new Socket(trackerAddress, tracker_port);
-        trackerWriter = new ObjectOutputStream(trackerSocket.getOutputStream());
-        trackerReader = new ObjectInputStream(trackerSocket.getInputStream());
+    private void initializeSocket(String address, int port) throws IOException {
+        socket = new Socket(address, port);
+        out = new ObjectOutputStream(socket.getOutputStream());
+        in = new ObjectInputStream(socket.getInputStream());
 
     }
 
@@ -85,7 +84,7 @@ public class Peer extends Thread {
 
     public String register() {
         try {
-            createSocket();
+            initializeSocket(trackerAddress, tracker_port);
             // Send registration request to tracker
             HashMap<String, String> request = new HashMap<>();
             request.put("type", "register");
@@ -93,8 +92,8 @@ public class Peer extends Thread {
             request.put("password", password);
             request.put("port", Integer.toString(localPort) );
 
-            trackerWriter.writeObject(request);
-            HashMap<String, String> response = (HashMap<String, String>) trackerReader.readObject();
+            out.writeObject(request);
+            HashMap<String, String> response = (HashMap<String, String>) in.readObject();
 
             // Check response from tracker
             if (response.get("message").equals("Succesfully registered") ) {
@@ -111,7 +110,8 @@ public class Peer extends Thread {
 
     public String logIn() {
         try {
-            createSocket();
+            initializeSocket(trackerAddress, tracker_port);
+
 
             // Send login request to tracker
             HashMap<String, String> request = new HashMap<>();
@@ -120,8 +120,8 @@ public class Peer extends Thread {
             request.put("password", password);
             request.put("port", Integer.toString(localPort) );
 
-            trackerWriter.writeObject(request);
-            HashMap<String, String> response = (HashMap<String, String>) trackerReader.readObject();
+            out.writeObject(request);
+            HashMap<String, String> response = (HashMap<String, String>) in.readObject();
 
             // Check response from tracker
             if (response.get("message").equals("Succesfully logged in") ) {
@@ -139,15 +139,16 @@ public class Peer extends Thread {
 
     public String logOut() {
         try {
-            createSocket();
+            initializeSocket(trackerAddress, tracker_port);
+
 
             // Send logout request to tracker
             HashMap<String, String> request = new HashMap<>();
             request.put("type", "logOut");
             request.put("username", name);
 
-            trackerWriter.writeObject(request);
-            HashMap<String, String> response = (HashMap<String, String>) trackerReader.readObject();
+            out.writeObject(request);
+            HashMap<String, String> response = (HashMap<String, String>) in.readObject();
 
             // Check response from tracker
             if (response.get("message").equals("Succesfully logged out") ) {
@@ -197,15 +198,16 @@ public class Peer extends Thread {
             try{
                 File fileEntry = filesInDir[j];
                 if (!fileEntry.isDirectory()) {
-                    createSocket();
+                    initializeSocket(trackerAddress, tracker_port);
+
 
                     HashMap<String, String> req = new HashMap<>();
                     req.put("type", "uploadFileName");
                     req.put("username", name);
                     req.put("filename", fileEntry.getName() );
-                    trackerWriter.writeObject(req);
+                    out.writeObject(req);
 
-                    HashMap<String, String> response = (HashMap<String, String>) trackerReader.readObject();
+                    HashMap<String, String> response = (HashMap<String, String>) in.readObject();
                     if (response.get("message").equals("Success") ) {
                         i++;
                     }
@@ -221,14 +223,15 @@ public class Peer extends Thread {
 
     public ArrayList<String> list() {
         try {
-            createSocket();
+            initializeSocket(trackerAddress, tracker_port);
+
 
             // stelnei request sto tracker gia ta available list
             HashMap<String, String> request = new HashMap<>();
             request.put("type", "listRequest");
-            trackerWriter.writeObject(request);
+            out.writeObject(request);
 
-            HashMap<String, ArrayList<String>> response = (HashMap<String, ArrayList<String>>) trackerReader.readObject();
+            HashMap<String, ArrayList<String>> response = (HashMap<String, ArrayList<String>>) in.readObject();
             return  response.get("fileList");
         } catch (IOException e) {
             return new ArrayList<String>();
@@ -250,15 +253,16 @@ public class Peer extends Thread {
 
     public UploadedFile details(String fileName) {
         try {
-            createSocket();
+            initializeSocket(trackerAddress, tracker_port);
+
 
             // stelnei request ston tracker gia plirofories enos sugkekrimenou arxeiou
             HashMap<String, String> request = new HashMap<>();
             request.put("type", "detailsRequest");
             request.put("filename", fileName);
-            trackerWriter.writeObject(request);
+            out.writeObject(request);
 
-            HashMap<String, UploadedFile> response = (HashMap<String, UploadedFile>) trackerReader.readObject();
+            HashMap<String, UploadedFile> response = (HashMap<String, UploadedFile>) in.readObject();
             return response.get("details");
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -270,17 +274,14 @@ public class Peer extends Thread {
 
     public String checkActive(OnlineUser peer) {
         try {
-            Socket s = new Socket(peer.getAddress(), peer.getPort());
-            trackerWriter = new ObjectOutputStream(s.getOutputStream());
-            trackerReader = new ObjectInputStream(s.getInputStream());
-
+            initializeSocket(peer.getAddress(), peer.getPort());
 
             // stelenei request ston tracker na dei an kapoios peer einai active
             HashMap<String, String> request = new HashMap<>();
             request.put("type", "checkActive");
-            trackerWriter.writeObject(request);
+            out.writeObject(request);
 
-            HashMap<String, String> response = (HashMap<String, String>) trackerReader.readObject();
+            HashMap<String, String> response = (HashMap<String, String>) in.readObject();
 
             if (response.get("active").equals("true")) {
                 return ("Peer " + peer.getUsername() + " is active.");
@@ -316,17 +317,14 @@ public class Peer extends Thread {
     public String simpleDownload(String filename, OnlineUser peer){
         try {
             //System.out.println(peer.getAddress()+ " fefe " + peer.getPort());
-            Socket s = new Socket(peer.getAddress(), peer.getPort());
-            trackerWriter = new ObjectOutputStream(s.getOutputStream());
-            trackerReader = new ObjectInputStream(s.getInputStream());
-
+            initializeSocket(peer.getAddress(), peer.getPort());
 
             HashMap<String, String> request = new HashMap<>();
             request.put("type", "simpleDownload");
             request.put("filename", filename);
-            trackerWriter.writeObject(request);
+            out.writeObject(request);
 
-            HashMap<String, byte[]> response = (HashMap<String, byte[]>) trackerReader.readObject();
+            HashMap<String, byte[]> response = (HashMap<String, byte[]>) in.readObject();
             this.writeFile(filename, response.get("file"));
 
             return "Downloaded file " + filename;
