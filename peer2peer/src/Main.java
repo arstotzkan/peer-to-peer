@@ -75,8 +75,10 @@ public class Main {
 
             if (!filename.equals("0"))
                 downloadFileScreen(filename);
-            else
+            else{
+                System.out.println(peer.logOut());
                 logInOrRegisterScreen();
+            }
         } else {
             mainScreen();
         }

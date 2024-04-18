@@ -101,7 +101,7 @@ public class TrackerRequestHandler extends Thread{
         OnlineUser loggedIn = new OnlineUser(request.get("username"),request.get("password"), "", this.senderAddress, peerPort);
         this.memory.removeOnlineUser(username); //avoid duplicate online users
         this.memory.removeUserFromFileRegistry(username);
-        
+
         this.memory.addOnlineUser(loggedIn);
 
         HashMap<String, String> response = new HashMap<>();
