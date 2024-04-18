@@ -86,16 +86,18 @@ public class TrackerRequestHandler extends Thread{
 
         //elegxo an yparxei o xristis
         String username = request.get("username");
-        int peerPort = Integer.parseInt(request.get("port"));
+        String password = request.get("password");
+        User user = this.memory.getUser(username);
 
-        if (this.memory.getUser(username) == null) {
-
+        if (user == null || !password.equals(user.getPassword())) {
             HashMap<String, String> response = new HashMap<>();
-            response.put("message", "User does not exist");
+            String msg = (user == null) ? "User does not exist" : "Invalid credentials";
+            response.put("message", msg);
             out.writeObject(response);
             return;
         }
 
+        int peerPort = Integer.parseInt(request.get("port"));
         OnlineUser loggedIn = new OnlineUser(request.get("username"),request.get("password"), "", this.senderAddress, peerPort);
         this.memory.addOnlineUser(loggedIn);
 
