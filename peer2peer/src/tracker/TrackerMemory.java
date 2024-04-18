@@ -190,4 +190,14 @@ public class TrackerMemory {
             }
         }
     }
+
+    public void removeUserFromFileRegistry(String username){
+        for (UploadedFile f: fileNames){
+            for (OnlineUser u: f.getUsersWithFile()){
+                if (u.getUsername().equals(username)){
+                    f.getUsersWithFile().remove(u);
+                }
+            }
+        }
+    }
 }

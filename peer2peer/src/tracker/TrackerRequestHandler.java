@@ -99,6 +99,9 @@ public class TrackerRequestHandler extends Thread{
 
         int peerPort = Integer.parseInt(request.get("port"));
         OnlineUser loggedIn = new OnlineUser(request.get("username"),request.get("password"), "", this.senderAddress, peerPort);
+        this.memory.removeOnlineUser(username); //avoid duplicate online users
+        this.memory.removeUserFromFileRegistry(username);
+        
         this.memory.addOnlineUser(loggedIn);
 
         HashMap<String, String> response = new HashMap<>();
@@ -117,7 +120,7 @@ public class TrackerRequestHandler extends Thread{
         }
 
         this.memory.removeOnlineUser(username);
-        //TODO: delete usedfrom all files
+        this.memory.removeUserFromFileRegistry(username);
         HashMap<String, String> response = new HashMap<>();
         response.put("message", "Succesfully logged out");
         out.writeObject(response);
