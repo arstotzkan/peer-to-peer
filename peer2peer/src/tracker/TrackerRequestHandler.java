@@ -66,6 +66,7 @@ public class TrackerRequestHandler extends Thread{
         if (this.memory.getUser(username) != null) {
 
             HashMap<String, String> response = new HashMap<>();
+            System.out.println("Failed registration for peer " + username + ": User with this username already exists");
             response.put("message", "User with this username already exists");
             out.writeObject(response);
             return;
@@ -78,7 +79,9 @@ public class TrackerRequestHandler extends Thread{
         this.memory.addOnlineUser(loggedIn);
 
         HashMap<String, String> response = new HashMap<>();
-        response.put("message", "Succesfully registered");
+        System.out.println("Peer " + username + " was successfully registered");
+
+        response.put("message", "Successfully registered");
         out.writeObject(response);
     }
     public void handleLogIn(HashMap<String,String> request) throws IOException {
@@ -92,6 +95,8 @@ public class TrackerRequestHandler extends Thread{
         if (user == null || !password.equals(user.getPassword())) {
             HashMap<String, String> response = new HashMap<>();
             String msg = (user == null) ? "User does not exist" : "Invalid credentials";
+            System.out.println("Login failed for peer" +  username + ": " + msg);
+
             response.put("message", msg);
             out.writeObject(response);
             return;
@@ -105,7 +110,9 @@ public class TrackerRequestHandler extends Thread{
         this.memory.addOnlineUser(loggedIn);
 
         HashMap<String, String> response = new HashMap<>();
-        response.put("message", "Succesfully logged in");
+        response.put("message", "Successfully logged in");
+            System.out.println("Successful login for peer " + username);
+
         out.writeObject(response);
     }
     public void handleLogOut(HashMap<String,String> request) throws IOException {
@@ -115,6 +122,7 @@ public class TrackerRequestHandler extends Thread{
 
             HashMap<String, String> response = new HashMap<>();
             response.put("message", "User is not logged in");
+            System.out.println("Failed logout for peer " + username + ": User is not logged in");
             out.writeObject(response);
             return;
         }
@@ -122,14 +130,16 @@ public class TrackerRequestHandler extends Thread{
         this.memory.removeOnlineUser(username);
         this.memory.removeUserFromFileRegistry(username);
         HashMap<String, String> response = new HashMap<>();
-        response.put("message", "Succesfully logged out");
+        response.put("message", "Successfully logged out");
+        System.out.println("Successful logout for peer " + username);
+
         out.writeObject(response);
     }
 
     public void handleListRequest(HashMap<String,String> request) throws IOException {
-        this.memory.getFileNames();
         HashMap<String, ArrayList<String>> response = new HashMap<>();
         response.put("fileList", this.memory.getListFileNames());
+        System.out.println("Files: " + this.memory.getListFileNames());
         out.writeObject(response);
     }
     public void handleDetailsRequest(HashMap<String,String> request) throws IOException {
@@ -137,6 +147,8 @@ public class TrackerRequestHandler extends Thread{
         String filename = request.get("filename");
         UploadedFile file = this.memory.getUploadedFile(filename);
         HashMap<String, UploadedFile> response = new HashMap<>();
+        System.out.println("Peers with file " + file.getName()  + " : " + file.getUsersWithFile());
+
         response.put("details", file);
         out.writeObject(response);
     }
@@ -155,6 +167,7 @@ public class TrackerRequestHandler extends Thread{
             response.put("message", "Failure");
         }else{
             f.getUsersWithFile().add(user); //TODO: check if already uploaded
+            System.out.println("Peer " + username + " has file " + filename);
             response.put("message", "Success");
         }
 

@@ -96,7 +96,7 @@ public class Peer extends Thread {
             HashMap<String, String> response = (HashMap<String, String>) in.readObject();
 
             // Check response from tracker
-            if (response.get("message").equals("Succesfully registered") ) {
+            if (response.get("message").equals("Successfully registered") ) {
                 return "Registration successful.";
             } else {
                 return "Registration failed: " + response.get("message");
@@ -124,7 +124,7 @@ public class Peer extends Thread {
             HashMap<String, String> response = (HashMap<String, String>) in.readObject();
 
             // Check response from tracker
-            if (response.get("message").equals("Succesfully logged in") ) {
+            if (response.get("message").equals("Successfully logged in") ) {
                 return "Login successful.";
             } else {
                 return "Failed to login: " + response.get("message");
@@ -151,7 +151,7 @@ public class Peer extends Thread {
             HashMap<String, String> response = (HashMap<String, String>) in.readObject();
 
             // Check response from tracker
-            if (response.get("message").equals("Succesfully logged out") ) {
+            if (response.get("message").equals("Successfully logged out") ) {
                 return "Logout successful.";
             } else {
                 return "Logout failed: " + response.get("message");
