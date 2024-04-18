@@ -129,15 +129,18 @@ public class TrackerMemory {
     }
 
     public void addOnlineUser(OnlineUser user1){
+        user1.setTokenID(generateToken());//setting the token to user1
+        loggedInUsers.add(user1);
+    }
+
+    private String generateToken(){
         String candidateChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"; //available characters
         StringBuilder newStr = new StringBuilder();
         while (newStr.length() < 10) { //length of the string
             int index = (int) (rnd.nextFloat() * candidateChars.length());
             newStr.append(candidateChars.charAt(index));
         }
-        String tokenStr = newStr.toString();//from char to Str
-        user1.setTokenID(tokenStr);//setting the token to user1
-        loggedInUsers.add(user1);
+        return newStr.toString();//from char to Str
     }
 
     public void addUploadedFile(UploadedFile file1){
