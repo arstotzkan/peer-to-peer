@@ -39,7 +39,7 @@ public class Main {
         peer = new Peer(username,password, sharedDir,trackerAddress );
 
         String loginMessage = peer.logIn();
-        System.out.println(loginMessage);
+        System.out.println(loginMessage + "\n");
 
         if (loginMessage.contains("Login successful"))
             mainScreen();
@@ -47,14 +47,14 @@ public class Main {
             logInOrRegisterScreen();
     }
     private static void registerScreen() throws IOException {
-        System.out.println("\n\nUsername: ");
+        System.out.println("\nUsername: ");
         String username = scanner.nextLine();
-        System.out.println("\nPassword: ");
+        System.out.println("Password: ");
         String password = scanner.nextLine();
 
         peer = new Peer(username,password, sharedDir,trackerAddress);
         String registerMessage = peer.register();
-        System.out.println("\n" + registerMessage);
+        System.out.println(registerMessage + "\n");
 
         if (registerMessage.contains("Registration successful"))
             mainScreen();
@@ -62,7 +62,7 @@ public class Main {
             logInOrRegisterScreen();
     }
 
-    private static void mainScreen(){
+    private static void mainScreen() throws IOException {
         ArrayList<String> fileList = peer.list();
         System.out.println("\n\n" + "File list: \n=========");
 
@@ -70,16 +70,32 @@ public class Main {
             for (String f : fileList)
                 System.out.println(f);
 
-            System.out.println("\nSelect filename to download: ");
+            System.out.println("\nSelect filename to download (or press 0 to log out): ");
             String filename = scanner.nextLine();
-            downloadFileScreen(filename);
+
+            if (!filename.equals("0"))
+                downloadFileScreen(filename);
+            else
+                logInOrRegisterScreen();
         } else {
             mainScreen();
         }
     }
 
-    private static void downloadFileScreen(String filename){
+    private static void downloadFileScreen(String filename) throws IOException {
         String downloadMessage = peer.downloadFile(filename);
         System.out.println("\n\n" + downloadMessage);
+        String choice = "";
+        while (!choice.equals("0") && !choice.equals("1")) {
+            System.out.println("\n1)Go to file screen\n0)Log out");
+            choice = scanner.nextLine();
+
+            if (choice.equals("1")){
+                mainScreen();
+            } else if (choice.equals("0")) {
+                System.out.println(peer.logOut());
+                logInOrRegisterScreen();
+            }
+        }
     }
 }
