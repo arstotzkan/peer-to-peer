@@ -325,8 +325,12 @@ public class Peer extends Thread {
             out.writeObject(request);
 
             HashMap<String, byte[]> response = (HashMap<String, byte[]>) in.readObject();
-            this.writeFile(filename, response.get("file"));
+            byte[] rawFile =  response.get("file");
 
+            if (rawFile == null){
+                return  "Failed to download file";
+            }
+            this.writeFile(filename, response.get("file"));
             return "Downloaded file " + filename;
         } catch (Exception e) {
             //throw new RuntimeException(e);

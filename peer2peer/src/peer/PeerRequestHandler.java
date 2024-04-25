@@ -50,13 +50,23 @@ public class PeerRequestHandler extends Thread {
 
     public void handleSimpleDownload(HashMap<String,String> request) throws IOException {
         //TODO: handle not existing file
-        String filepath = this.sharedDirPath + File.separator + request.get("filename");
-        Path path = Paths.get(filepath);
-        byte[] content = Files.readAllBytes(path);
-
         HashMap<String, byte[]> response = new HashMap<>();
-        response.put("file", content);
-        out.writeObject(response);
+
+        try{
+            String filepath = this.sharedDirPath + File.separator + request.get("filename");
+            Path path = Paths.get(filepath);
+            byte[] content = Files.readAllBytes(path);
+
+            response.put("file", content);
+            System.out.println("Download request for file " + request.get("filename") + " is successful");
+
+        } catch (Exception e){
+            System.out.println("Download request for file " + request.get("filename") + " failed");
+            response.put("file", null );
+
+        } finally {
+            out.writeObject(response);
+        }
 
     }
 

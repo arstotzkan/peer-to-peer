@@ -1,4 +1,4 @@
-package peer;
+import peer.Peer;
 
 import java.io.IOException;
 import java.util.Scanner;
