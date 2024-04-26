@@ -50,6 +50,12 @@ public class TrackerRequestHandler extends Thread{
                 case "uploadFileName":
                     this.handleUploadRequest(request);
                     break;
+                case "updateDownloadCount":
+                    this.updateDownloadCount(request);
+                    break;
+                case "updateFailureCount":
+                    this.updateFailureCount(request);
+                    break;
 
             }
         } catch (IOException e) {
@@ -73,6 +79,7 @@ public class TrackerRequestHandler extends Thread{
         }
 
         User newUser = new User(request.get("username"), request.get("password") );
+
         OnlineUser loggedIn = new OnlineUser(request.get("username"),request.get("password"), "", this.senderAddress, peerPort);
 
         this.memory.addUser(newUser);
@@ -173,5 +180,35 @@ public class TrackerRequestHandler extends Thread{
 
         out.writeObject(response);
 
+    }
+
+    public void updateDownloadCount(HashMap <String, String> request) throws IOException{
+        String username = request.get("username");
+        HashMap<String, String> response = new HashMap<>();
+
+        if (this.memory.getOnlineUser(username) != null){
+            this.memory.increaseCountDownloads(username);
+            System.out.println("Updated download count for peer " + username);
+            response.put("message", "Updated download count for peer " + username);
+        } else {
+            response.put("message", "No user with this username");
+        }
+
+        out.writeObject(response);
+
+    }
+    public void updateFailureCount(HashMap <String, String> request) throws IOException{
+        String username = request.get("username");
+        HashMap<String, String> response = new HashMap<>();
+
+        if (this.memory.getOnlineUser(username) != null){
+            this.memory.increaseCountFailures(username);
+            System.out.println("Updated failure count for peer " + username);
+            response.put("message", "Updated failure count for peer " + username);
+        } else {
+            response.put("message", "No user with this username");
+        }
+
+        out.writeObject(response);
     }
 }

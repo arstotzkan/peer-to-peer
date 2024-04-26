@@ -271,6 +271,7 @@ public class Peer extends Thread {
 
     public String checkActive(OnlineUser peer) {
         try {
+            System.out.println(peer.getAddress() + " " + peer.getPort() + " " + peer.getUsername());
             initializeSocket(peer.getAddress(), peer.getPort());
 
             // stelenei request ston tracker na dei an kapoios peer einai active
@@ -325,9 +326,12 @@ public class Peer extends Thread {
             byte[] rawFile =  response.get("file");
 
             if (rawFile == null){
+                //System.out.println(this.updateFailureCount(peer.getUsername()));
                 return  "Failed to download file";
             }
             this.writeFile(filename, response.get("file"));
+            //System.out.println(this.updateDownloadCount(peer.getUsername()));
+
             return "Downloaded file " + filename;
         } catch (Exception e) {
             //throw new RuntimeException(e);
@@ -341,6 +345,28 @@ public class Peer extends Thread {
         File file = new File(this.sharedDirPath + File.separator + filename);
         OutputStream os = new FileOutputStream(file);
         os.write(content);
+    }
+
+    private String updateFailureCount(String username) throws IOException, ClassNotFoundException{
+        initializeSocket(trackerAddress, tracker_port);
+        HashMap<String, String> request = new HashMap<>();
+        request.put("type", "updateFailureCount");
+        request.put("username", username);
+        out.writeObject(request);
+
+        HashMap<String, String> response = (HashMap<String, String>) in.readObject();
+        return response.get("message");
+    }
+
+    private String updateDownloadCount(String username) throws IOException, ClassNotFoundException {
+        initializeSocket(trackerAddress, tracker_port);
+        HashMap<String, String> request = new HashMap<>();
+        request.put("type", "updateDownloadCount");
+        request.put("username", username);
+        out.writeObject(request);
+
+        HashMap<String, String> response = (HashMap<String, String>) in.readObject();
+        return response.get("message");
     }
 
     public String getUsername() {

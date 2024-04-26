@@ -67,7 +67,9 @@ public class TrackerMemory {
 
 
     public OnlineUser getOnlineUser(String username){
+        System.out.println("=====");
         for (OnlineUser u: loggedInUsers){
+            System.out.println(u.getUsername()+ "<>" + username + u.getUsername().equals(username));
             if (u.getUsername().equals(username)){
                 return u;
             }
@@ -177,14 +179,16 @@ public class TrackerMemory {
       return false;
     }
     public void increaseCountDownloads(String username){
-        for (OnlineUser u: loggedInUsers){
+        for(Iterator<OnlineUser> it = loggedInUsers.iterator(); it.hasNext(); ) {
+            OnlineUser u = it.next();
             if (u.getUsername().equals(username)){
                 u.increaseCountDownloads();
             }
         }
     }
     public void increaseCountFailures(String username){
-        for (OnlineUser u: loggedInUsers){
+        for(Iterator<OnlineUser> it = loggedInUsers.iterator(); it.hasNext(); ) {
+            OnlineUser u = it.next();
             if (u.getUsername().equals(username)){
                 u.increaseCountFailures();
             }
