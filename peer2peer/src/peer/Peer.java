@@ -61,9 +61,6 @@ public class Peer extends Thread {
             this.localPort = server.getLocalPort();
             System.out.println(this.name + ": Setting up peer server @ port" + localPort );
 
-            System.out.println(getUsername() + ": " +register());
-            System.out.println(getUsername() + ": " +uploadFileNames() );
-
             while (true) {
                 /* Accept the connection */
                 req = server.accept();

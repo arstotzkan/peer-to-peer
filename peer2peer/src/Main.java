@@ -37,6 +37,7 @@ public class Main {
         String password = scanner.nextLine();
 
         peer = new Peer(username,password, sharedDir,trackerAddress );
+        peer.start();
 
         String loginMessage = peer.logIn();
         System.out.println(loginMessage + "\n");
@@ -53,6 +54,7 @@ public class Main {
         String password = scanner.nextLine();
 
         peer = new Peer(username,password, sharedDir,trackerAddress);
+        peer.start();
         String registerMessage = peer.register();
         System.out.println(registerMessage + "\n");
 
