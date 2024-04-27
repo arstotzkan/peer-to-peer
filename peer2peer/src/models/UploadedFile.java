@@ -23,6 +23,16 @@ public class UploadedFile implements Serializable {
         return usersWithFile;
      }
 
+     public boolean userHasFile(String username){
+         for (OnlineUser ou: usersWithFile){
+             if (ou.getUsername().equals(username)){
+                 return true;
+             }
+         }
+
+         return false;
+     }
+
      public void setName(String name){
         this.name=name;
      }
