@@ -239,6 +239,11 @@ public class Peer extends Thread {
 
     public String downloadFile(String filename){
         UploadedFile file = details(filename);
+
+        if (file == null){
+            return "No file with this name";
+        }
+
         System.out.println("Users with file " + file.getName() + " : " + file.getUsersWithFile());
         OnlineUser best = findBestPeer(file);
         System.out.println("Best peer: " + best.getUsername());

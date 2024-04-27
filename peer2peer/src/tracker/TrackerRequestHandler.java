@@ -154,8 +154,14 @@ public class TrackerRequestHandler extends Thread{
         String filename = request.get("filename");
         UploadedFile file = this.memory.getUploadedFile(filename);
         HashMap<String, UploadedFile> response = new HashMap<>();
-        System.out.println("Peers with file " + file.getName()  + " : " + file.getUsersWithFile());
 
+        if (file == null){
+            response.put("details", null);
+            out.writeObject(response);
+            return;
+        }
+
+        System.out.println("Peers with file " + file.getName()  + " : " + file.getUsersWithFile());
         response.put("details", file);
         out.writeObject(response);
     }
@@ -171,6 +177,7 @@ public class TrackerRequestHandler extends Thread{
         HashMap<String, String> response = new HashMap<>();
 
         if (f == null || user == null){
+            System.out.println("No file with this name");
             response.put("message", "Failure");
         }else{
             f.getUsersWithFile().add(user); //TODO: check if already uploaded

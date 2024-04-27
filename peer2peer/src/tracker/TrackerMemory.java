@@ -67,9 +67,7 @@ public class TrackerMemory {
 
 
     public OnlineUser getOnlineUser(String username){
-        System.out.println("=====");
         for (OnlineUser u: loggedInUsers){
-            System.out.println(u.getUsername()+ "<>" + username + u.getUsername().equals(username));
             if (u.getUsername().equals(username)){
                 return u;
             }
