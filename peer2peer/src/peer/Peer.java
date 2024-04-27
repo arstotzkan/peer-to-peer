@@ -301,6 +301,11 @@ public class Peer extends Thread {
         OnlineUser bestUser = new OnlineUser();
 
         for (OnlineUser u: file.getUsersWithFile()){
+
+            if (u.getUsername().equals(name)){
+                continue;
+            }
+
             long begin = System.currentTimeMillis();
             String msg = checkActive(u);
             long end = System.currentTimeMillis();
