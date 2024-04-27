@@ -202,7 +202,7 @@ public class TrackerMemory {
             for(Iterator<OnlineUser> it2 = f.getUsersWithFile().iterator(); it2.hasNext(); ) {
                 OnlineUser u = it2.next();
                 if (u.getUsername().equals(username)){
-                    it1.remove();
+                    it2.remove();
                 }
             }
         }
