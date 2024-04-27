@@ -179,6 +179,9 @@ public class TrackerRequestHandler extends Thread{
         if (f == null || user == null){
             System.out.println("No file with this name");
             response.put("message", "Failure");
+        }else if (f.userHasFile(username)) {
+            System.out.println("Peer " + username + " already has file " + filename);
+            response.put("message", "Success");
         }else{
             f.getUsersWithFile().add(user); //TODO: check if already uploaded
             System.out.println("Peer " + username + " has file " + filename);
