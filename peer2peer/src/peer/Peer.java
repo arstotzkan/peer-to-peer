@@ -9,7 +9,9 @@ import java.io.*;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import models.UploadedFile;
 import static java.lang.Double.POSITIVE_INFINITY;
@@ -377,6 +379,31 @@ public class Peer extends Thread {
 
         HashMap<String, String> response = (HashMap<String, String>) in.readObject();
         return response.get("message");
+    }
+
+    private void partition(File f) throws IOException {
+        byte[] content = Files.readAllBytes(f.toPath());
+
+        for (int i = 0; i < 10; i++){
+            File fragment = new File(f.toString() + ".part." + i );
+            OutputStream os = new FileOutputStream(fragment);
+
+            int start = i * (content.length / 10);
+            int end = ( (i + 1) * (content.length / 10) );
+
+            byte[] fragmentContent = Arrays.copyOfRange(content, start,end);
+            os.write(fragmentContent);
+        }
+    }
+
+    private void assemble(String filename) throws IOException{
+        File result = new File(filename);
+        OutputStream os = new FileOutputStream(result);
+        for (int i = 0; i < 10; i++){
+            File fragment = new File(filename + ".part." + i );
+            byte[] fragmentContent = Files.readAllBytes(fragment.toPath());
+            os.write(fragmentContent);
+        }
     }
 
     public String getUsername() {
