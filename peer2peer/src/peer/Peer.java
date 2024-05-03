@@ -13,6 +13,8 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Random;
+
 import models.UploadedFile;
 import static java.lang.Double.POSITIVE_INFINITY;
 
@@ -25,7 +27,7 @@ public class Peer extends Thread {
     private Socket socket;
     private ObjectOutputStream out;
     private ObjectInputStream in;
-
+    private Random rnd;
     private int localPort;
     private String trackerAddress;
     private static final int tracker_port = 12345; //to allazo me to actual port
@@ -36,6 +38,8 @@ public class Peer extends Thread {
         this.server = new ServerSocket();
         this.sharedDirPath = sharedDirPath;
         this.trackerAddress = trackerAddress;
+
+        this.rnd = new Random(this.generateRandomSeed());
         // Create shared directory if it doesn't exist
         File sharedDir = new File(sharedDirPath);
         if (!sharedDir.exists()) {
@@ -408,5 +412,13 @@ public class Peer extends Thread {
 
     public String getUsername() {
         return name;
+    }
+
+    public int generateRandomSeed(){
+        int result = 0;
+        for (int i = 0; i <= name.length(); i++){
+            result += name.charAt(i);
+        }
+        return result;
     }
 }
