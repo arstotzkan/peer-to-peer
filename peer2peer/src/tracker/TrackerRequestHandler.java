@@ -5,7 +5,6 @@ import models.OnlineUser;
 import models.UploadedFile;
 import models.User;
 
-import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -116,7 +115,7 @@ public class TrackerRequestHandler extends Thread{
         int peerPort = Integer.parseInt(request.get("port"));
         OnlineUser loggedIn = new OnlineUser(request.get("username"),request.get("password"), "", this.senderAddress, peerPort);
         this.memory.removeOnlineUser(username); //avoid duplicate online users
-        this.memory.removeUserFromFileRegistry(username);
+        this.memory.removeUserFromSeederRegister(username);
 
         this.memory.addOnlineUser(loggedIn);
 
@@ -139,7 +138,7 @@ public class TrackerRequestHandler extends Thread{
         }
 
         this.memory.removeOnlineUser(username);
-        this.memory.removeUserFromFileRegistry(username);
+        this.memory.removeUserFromSeederRegister(username);
         HashMap<String, String> response = new HashMap<>();
         response.put("message", "Successfully logged out");
         System.out.println("Successful logout for peer " + username);

@@ -193,11 +193,11 @@ public class TrackerMemory {
         }
     }
 
-    public void removeUserFromFileRegistry(String username){
+    public void removeUserFromSeederRegister(String username){
         for(Iterator<UploadedFile> it1 = fileNames.iterator(); it1.hasNext(); ) {
             UploadedFile f = it1.next();
 
-            for(Iterator<OnlineUser> it2 = f.getUsersWithFile().iterator(); it2.hasNext(); ) {
+            for(Iterator<OnlineUser> it2 = f.getSeeders().iterator(); it2.hasNext(); ) {
                 OnlineUser u = it2.next();
                 if (u.getUsername().equals(username)){
                     it2.remove();
