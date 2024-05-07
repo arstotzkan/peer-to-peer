@@ -205,7 +205,7 @@ public class Peer extends Thread {
 
 
                     HashMap<String, String> req = new HashMap<>();
-                    req.put("type", "uploadFileName");
+                    req.put("type", "uploadFileFragment");
                     req.put("username", name);
                     req.put("filename", fileEntry.getName() );
                     out.writeObject(req);
@@ -250,7 +250,7 @@ public class Peer extends Thread {
             return "No file with this name";
         }
 
-        System.out.println("Users with file " + file.getName() + " : " + file.getUsersWithFile());
+        System.out.println("Users with file " + file.getName() + " : " + file.getUsersWithFragment());
         OnlineUser best = findBestPeer(file);
         System.out.println("Best peer: " + best.getUsername());
         String downloadMessage = simpleDownload(filename, best);
@@ -306,7 +306,7 @@ public class Peer extends Thread {
         double max = POSITIVE_INFINITY;
         OnlineUser bestUser = new OnlineUser();
 
-        for (OnlineUser u: file.getUsersWithFile()){
+        for (OnlineUser u: file.getUsersWithFragment()){
 
             if (u.getUsername().equals(name)){
                 continue;

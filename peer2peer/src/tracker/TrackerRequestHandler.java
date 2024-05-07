@@ -1,5 +1,6 @@
 package tracker;
 
+import models.FileFragment;
 import models.OnlineUser;
 import models.UploadedFile;
 import models.User;
@@ -47,8 +48,11 @@ public class TrackerRequestHandler extends Thread{
                 case "detailsRequest":
                     this.handleDetailsRequest(request);
                     break;
-                case "uploadFileName":
-                    this.handleUploadRequest(request);
+                case "uploadFileFragment":
+                    this.handleFragmentUploadRequest(request);
+                    break;
+                case "seederUpdate":
+                    this.handleSeederUpdateRequest(request);
                     break;
                 case "updateDownloadCount":
                     this.updateDownloadCount(request);
@@ -161,12 +165,41 @@ public class TrackerRequestHandler extends Thread{
             return;
         }
 
-        System.out.println("Peers with file " + file.getName()  + " : " + file.getUsersWithFile());
+//        System.out.println("Peers with file " + file.getName()  + " : " + file.getUsersWithFragment());
         response.put("details", file);
         out.writeObject(response);
     }
 
-    public void handleUploadRequest(HashMap <String, String> request) throws IOException{
+    public void handleFragmentUploadRequest(HashMap <String, String> request) throws IOException{
+        String filename = request.get("filename");
+        String fragmentId = request.get("fragmentId");
+        String username = request.get("username");
+
+        UploadedFile f = this.memory.getUploadedFile(filename);
+        FileFragment ff = f.getFragment(filename + fragmentId);
+        OnlineUser user = this.memory.getOnlineUser(username);
+
+
+        HashMap<String, String> response = new HashMap<>();
+
+        if (f == null || user == null){
+            System.out.println("No file with this name");
+            response.put("message", "Failure");
+        }else if (f.userHasFragment(username)) {
+            //TODO: ADD TO CORRECT FRAGMENT
+            System.out.println("Peer " + username + " already has file fragment(s) of " + filename);
+            response.put("message", "Success");
+        }else{
+            f.getUsersWithFragment().add(user); //TODO: check if already uploaded
+            System.out.println("Peer " + username + " has file fragment(s) of " + filename);
+            response.put("message", "Success");
+        }
+
+        out.writeObject(response);
+
+    }
+
+    public void handleSeederUpdateRequest(HashMap <String, String> request) throws IOException{
         String filename = request.get("filename");
         String username = request.get("username");
 
@@ -179,12 +212,12 @@ public class TrackerRequestHandler extends Thread{
         if (f == null || user == null){
             System.out.println("No file with this name");
             response.put("message", "Failure");
-        }else if (f.userHasFile(username)) {
-            System.out.println("Peer " + username + " already has file " + filename);
+        }else if (f.userIsSeeder(username)) {
+            System.out.println("Peer " + username + " already is a seeder of " + filename);
             response.put("message", "Success");
         }else{
-            f.getUsersWithFile().add(user); //TODO: check if already uploaded
-            System.out.println("Peer " + username + " has file " + filename);
+            f.getSeeders().add(user); //TODO: check if already uploaded
+            System.out.println("Peer " + username + " is a seeder of " + filename);
             response.put("message", "Success");
         }
 

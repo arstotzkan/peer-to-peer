@@ -1,37 +1,48 @@
 package models;
 
+import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 public class UploadedFile implements Serializable {
     
 
      String name;
-     ArrayList<OnlineUser> usersWithFile;
+     ArrayList<FileFragment> fragments;
+
+    ArrayList<OnlineUser> seeders;
 
      public UploadedFile(){
-        usersWithFile = new ArrayList<>();
+         fragments = new ArrayList<>();
+         seeders = new ArrayList<>();
         name="";
      }
 
      public UploadedFile(String name){
-        usersWithFile = new ArrayList<>();
+         fragments = new ArrayList<>();
         this.name=name;
      }
 
-     public ArrayList<OnlineUser> getUsersWithFile(){
-        return usersWithFile;
-     }
+    public ArrayList<FileFragment> getFragments(){
+        return fragments;
+    }
+    public ArrayList<OnlineUser> getSeeders(){
+        return seeders;
+    }
 
-     public boolean userHasFile(String username){
-         for (OnlineUser ou: usersWithFile){
-             if (ou.getUsername().equals(username)){
-                 return true;
-             }
+    public ArrayList<OnlineUser> getUsersWithFragment(){
+         HashSet<OnlineUser> users = new HashSet<OnlineUser>();
+
+         for (FileFragment f : fragments){
+            for (OnlineUser u: f.getUsersWithFragment()){
+                users.add(u);
+            }
          }
 
-         return false;
-     }
+         return new ArrayList<>(users);
+    }
 
      public void setName(String name){
         this.name=name;
@@ -40,4 +51,30 @@ public class UploadedFile implements Serializable {
      public String getName(){
         return name;
      }
+
+     public boolean userHasFragment(String username) {
+         for (OnlineUser ou : getUsersWithFragment()) {
+             if (ou.getUsername().equals(username)) {
+                 return true;
+             }
+         }
+         return false;
+     }
+
+    public FileFragment getFragment(String fragmentName){
+        for (FileFragment ff: fragments){
+            if (ff.getName().equals(fragmentName)){
+                return ff;
+            }
+        }
+        return null;
+    }
+    public boolean userIsSeeder(String username) {
+        for (OnlineUser ou : seeders) {
+            if (ou.getUsername().equals(username)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }
