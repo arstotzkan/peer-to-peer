@@ -202,14 +202,19 @@ public class Peer extends Thread {
                 File fileEntry = filesInDir[j];
                 if (!fileEntry.isDirectory()) {
                     initializeSocket(trackerAddress, tracker_port);
-
-
                     HashMap<String, String> req = new HashMap<>();
-                    req.put("type", "uploadFileFragment");
-                    req.put("username", name);
-                    req.put("filename", fileEntry.getName() );
-                    out.writeObject(req);
 
+                    if(name.contains(".part.")){
+                        req.put("type", "uploadFileFragment");
+                        req.put("username", name);
+                        req.put("filename", fileEntry.getName() );
+                    } else {
+                        req.put("type", "seederUpdate");
+                        req.put("username", name);
+                        req.put("filename", fileEntry.getName() );
+                    }
+
+                    out.writeObject(req);
                     HashMap<String, String> response = (HashMap<String, String>) in.readObject();
                     if (response.get("message").equals("Success") ) {
                         i++;
@@ -223,7 +228,6 @@ public class Peer extends Thread {
         }
         return "Uploaded " + i + " files";
     }
-
     public ArrayList<String> list() {
         try {
             initializeSocket(trackerAddress, tracker_port);

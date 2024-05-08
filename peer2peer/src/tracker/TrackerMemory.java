@@ -166,16 +166,7 @@ public class TrackerMemory {
       }
       return false;
     }
-    public boolean removeUploadedFile(String file1){
-        for(Iterator<UploadedFile> it = fileNames.iterator(); it.hasNext(); ) {
-            UploadedFile f = it.next();
-            if (f.getName().equals(file1)){
-                it.remove();
-                return true;
-            }
-      }
-      return false;
-    }
+
     public void increaseCountDownloads(String username){
         for(Iterator<OnlineUser> it = loggedInUsers.iterator(); it.hasNext(); ) {
             OnlineUser u = it.next();

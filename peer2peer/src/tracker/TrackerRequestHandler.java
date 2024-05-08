@@ -171,11 +171,10 @@ public class TrackerRequestHandler extends Thread{
 
     public void handleFragmentUploadRequest(HashMap <String, String> request) throws IOException{
         String filename = request.get("filename");
-        String fragmentId = request.get("fragmentId");
         String username = request.get("username");
 
         UploadedFile f = this.memory.getUploadedFile(filename);
-        FileFragment ff = f.getFragment(filename + fragmentId);
+        FileFragment ff = f.getFragment(filename);
         OnlineUser user = this.memory.getOnlineUser(username);
 
 
