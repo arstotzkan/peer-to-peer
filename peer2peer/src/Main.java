@@ -86,6 +86,7 @@ public class Main {
         }
     }
 
+
     private static void downloadFileScreen(String filename) throws IOException {
         String downloadMessage = peer.downloadFile(filename);
         System.out.println("\n\n" + downloadMessage);

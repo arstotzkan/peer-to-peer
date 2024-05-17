@@ -17,6 +17,10 @@ import java.util.Random;
 
 import models.UploadedFile;
 import static java.lang.Double.POSITIVE_INFINITY;
+import java.util.List;
+import java.util.Random;
+import java.util.stream.Collectors;
+
 
 
 public class Peer extends Thread {
@@ -260,6 +264,43 @@ public class Peer extends Thread {
         String downloadMessage = simpleDownload(filename, best);
         uploadFileNames();
         return downloadMessage;
+    }
+
+    public String selectRandomFileForDownload() {
+        List<String> availableFiles = list();
+        List<String> localFiles = getLocalFiles();
+
+        // Filter out the files the user already has
+        List<String> filesToDownload = availableFiles.stream()
+                .filter(file -> !localFiles.contains(file))
+                .collect(Collectors.toList());
+
+        if (filesToDownload.isEmpty()) {
+            return "No new files available for download.";
+        }
+
+        // Randomly select a file from the filtered list
+        Random random = new Random();
+        String selectedFile = filesToDownload.get(random.nextInt(filesToDownload.size()));
+
+        // Attempt to download the selected file
+        return downloadFile(selectedFile);
+    }
+
+    private List<String> getLocalFiles() { //This method lists all the files in the user's shared directory and returns them as a list of filenames.
+        File folder = new File(this.sharedDirPath);
+        File[] filesInDir = folder.listFiles();
+        List<String> localFiles = new ArrayList<>();
+
+        if (filesInDir != null) {
+            for (File fileEntry : filesInDir) {
+                if (!fileEntry.isDirectory()) {
+                    localFiles.add(fileEntry.getName());
+                }
+            }
+        }
+
+        return localFiles;
     }
 
 
