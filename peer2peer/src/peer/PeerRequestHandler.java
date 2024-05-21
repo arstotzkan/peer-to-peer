@@ -3,93 +3,77 @@ package peer;
 import models.UploadedFile;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashMap;
-import java.io.RandomAccessFile;
 
 public class PeerRequestHandler extends Thread {
-    /*Will be used mostly when sending files to another peer*/
-    ObjectInputStream in;
-    ObjectOutputStream out;
+    /* Will be used mostly when sending files to another peer */
+    private ObjectInputStream in;
+    private ObjectOutputStream out;
 
-    String sharedDirPath;
-    String sender;
+    private String sharedDirPath;
+    private String sender;
 
     public PeerRequestHandler(Socket req, String path) throws IOException {
         this.out = new ObjectOutputStream(req.getOutputStream());
         this.in = new ObjectInputStream(req.getInputStream());
-        this.sender =  req.getRemoteSocketAddress().toString();
+        this.sender = req.getRemoteSocketAddress().toString();
         this.sharedDirPath = path;
     }
 
     public void run() {
-        HashMap<String,String> request = null;
         try {
-            request = (HashMap<String,String>) in.readObject();
+            HashMap<String, String> request = (HashMap<String, String>) in.readObject();
             String message = request.get("type");
 
             switch (message) {
                 case "simpleDownload":
-                    this.handleSimpleDownload(request);
+                    handleSimpleDownload(request);
                     break;
                 case "checkActive":
-                    this.handleCheckActive();
+                    handleCheckActive();
                     break;
             }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } catch (ClassNotFoundException e) {
+        } catch (IOException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public void handleSimpleDownload(HashMap<String,String> request) throws IOException {
-        //TODO: handle not existing file
+    public void handleSimpleDownload(HashMap<String, String> request) throws IOException {
         HashMap<String, byte[]> response = new HashMap<>();
-        // first validate the byte range (startByte and endByte) to ensure they are within the bounds of the file size.
-        //Then, we use file.seek(startByte) to move the file pointer to the start position of the desired fragment.
-        //We read the specified fragment size into a byte array using file.readFully(fragment)
-        RandomAccessFile file = null;
+
         try {
-            String filepath = this.sharedDirPath + File.separator + request.get("filename");
-            long startByte = Long.parseLong(request.get("startByte"));
-            long endByte = Long.parseLong(request.get("endByte"));
+            // ruquest gia retrieve filename kai to number
+            String baseFilename = request.get("filename");
+            int fragmentNumber = Integer.parseInt(request.get("fragmentNumber"));
 
-            Path path = Paths.get(filepath);
-            long fileSize = Files.size(path);
+            // olo to path gia to fragment
+            String fragmentFilename = this.sharedDirPath + File.separator + baseFilename + ".part" + fragmentNumber;
+            File fragmentFile = new File(fragmentFilename);
 
-            if (startByte < 0 || endByte > fileSize || startByte > endByte) {
-                throw new IllegalArgumentException("Invalid byte range");
+            if (!fragmentFile.exists()) {
+                throw new FileNotFoundException("Fragment file not found");
             }
 
-            file = new RandomAccessFile(filepath, "r");
-            file.seek(startByte);
-
-            int fragmentSize = (int) (endByte - startByte);
-            byte[] fragment = new byte[fragmentSize];
-            file.readFully(fragment);
+            // Read
+            byte[] fragment = Files.readAllBytes(fragmentFile.toPath());
 
             response.put("file", fragment);
-            System.out.println("Download request for file " + request.get("filename") + " is successful");
+            System.out.println("Download request for file " + fragmentFilename + " is successful");
 
         } catch (Exception e) {
             System.out.println("Download request for file " + request.get("filename") + " failed: " + e.getMessage());
             response.put("file", null);
 
         } finally {
-            if (file != null) {
-                file.close();
-            }
             out.writeObject(response);
         }
     }
-
 
     public void handleCheckActive() throws IOException {
         HashMap<String, String> response = new HashMap<>();
