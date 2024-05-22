@@ -70,6 +70,29 @@ public class PeerRequestHandler extends Thread {
 
     }
 
+    public void handleSegmentRequest(HashMap<String,String> request){
+        String filepath = this.sharedDirPath + File.separator + request.get("filename");
+
+        if (isSeeder()){
+
+        }
+    }
+
+    public void handleSeederServe(HashMap<String,String> request) throws IOException{
+        //select random part
+        //select randomly a part of the file
+    }
+
+    public void handleCollaborativeDownload(HashMap<String,String> request) throws IOException{
+        //select random part
+        //request another part
+
+    }
+
+    public boolean isSeeder(){
+        return true;
+    }
+
     public void handleCheckActive() throws IOException {
         HashMap<String, String> response = new HashMap<>();
         response.put("active", "true");
