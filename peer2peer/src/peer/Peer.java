@@ -11,6 +11,8 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Random;
+
 import models.UploadedFile;
 import static java.lang.Double.POSITIVE_INFINITY;
 
@@ -23,6 +25,8 @@ public class Peer extends Thread {
     private Socket socket;
     private ObjectOutputStream out;
     private ObjectInputStream in;
+
+    Random rnd = new Random();
 
     private int localPort;
     private String trackerAddress;
@@ -64,7 +68,7 @@ public class Peer extends Thread {
             while (true) {
                 /* Accept the connection */
                 req = server.accept();
-                Thread reqThread = new PeerRequestHandler(req, this.sharedDirPath);
+                Thread reqThread = new PeerRequestHandler(req, this.sharedDirPath, rnd);
                 reqThread.start();
             }
 
