@@ -17,6 +17,10 @@ import java.util.Random;
 
 import models.UploadedFile;
 import static java.lang.Double.POSITIVE_INFINITY;
+import java.util.List;
+import java.util.Random;
+import java.util.stream.Collectors;
+
 
 
 public class Peer extends Thread {
@@ -45,9 +49,43 @@ public class Peer extends Thread {
         if (!sharedDir.exists()) {
             sharedDir.mkdirs(); // The mkdirs() method is used to create the directory specified by the File object. If the directory already exists, it will do nothing and return false.
         }
-        // Connect to the tracker
+        // Partition the files
+        partitionAllFiles();
     }
 
+    private void partitionAllFiles() {
+        File sharedDir = new File(sharedDirPath);
+        File[] files = sharedDir.listFiles();
+
+        if (files != null) {
+            for (File file : files) {
+                if (file.isFile() && !file.getName().contains(".part")) {
+                    try {
+                        partitionFile(file);
+                    } catch (IOException e) {
+                        System.err.println("Failed to partition file: " + file.getName());
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+    }
+
+    private void partitionFile(File file) throws IOException {
+        int chunkSize = 1024 * 1024; // 1 MB
+        byte[] buffer = new byte[chunkSize];
+        int bytesRead;
+
+        try (FileInputStream fis = new FileInputStream(file)) {
+            int chunkNumber = 0;
+            while ((bytesRead = fis.read(buffer)) > 0) {
+                File chunkFile = new File(file.getParent(), file.getName() + ".part" + chunkNumber++);
+                try (FileOutputStream fos = new FileOutputStream(chunkFile)) {
+                    fos.write(buffer, 0, bytesRead);
+                }
+            }
+        }
+    }
     private void initializeSocket(String address, int port) throws IOException {
         socket = new Socket(address, port);
         out = new ObjectOutputStream(socket.getOutputStream());
@@ -260,6 +298,43 @@ public class Peer extends Thread {
         String downloadMessage = simpleDownload(filename, best);
         uploadFileNames();
         return downloadMessage;
+    }
+
+    public String selectRandomFileForDownload() {
+        List<String> availableFiles = list();
+        List<String> localFiles = getLocalFiles();
+
+        // Filter out the files the user already has
+        List<String> filesToDownload = availableFiles.stream()
+                .filter(file -> !localFiles.contains(file))
+                .collect(Collectors.toList());
+
+        if (filesToDownload.isEmpty()) {
+            return "No new files available for download.";
+        }
+
+        // Randomly select a file from the filtered list
+        Random random = new Random();
+        String selectedFile = filesToDownload.get(random.nextInt(filesToDownload.size()));
+
+        // Attempt to download the selected file
+        return downloadFile(selectedFile);
+    }
+
+    private List<String> getLocalFiles() { //This method lists all the files in the user's shared directory and returns them as a list of filenames.
+        File folder = new File(this.sharedDirPath);
+        File[] filesInDir = folder.listFiles();
+        List<String> localFiles = new ArrayList<>();
+
+        if (filesInDir != null) {
+            for (File fileEntry : filesInDir) {
+                if (!fileEntry.isDirectory()) {
+                    localFiles.add(fileEntry.getName());
+                }
+            }
+        }
+
+        return localFiles;
     }
 
 
