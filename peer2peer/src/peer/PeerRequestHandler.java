@@ -10,6 +10,7 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.nio.file.Files;
 import java.util.HashMap;
+import java.util.Random;
 
 public class PeerRequestHandler extends Thread {
     /* Will be used mostly when sending files to another peer */
@@ -18,11 +19,13 @@ public class PeerRequestHandler extends Thread {
 
     private String sharedDirPath;
     private String sender;
+    private Random rnd;
 
-    public PeerRequestHandler(Socket req, String path) throws IOException {
+    public PeerRequestHandler(Socket req, String path, Random r) throws IOException {
         this.out = new ObjectOutputStream(req.getOutputStream());
         this.in = new ObjectInputStream(req.getInputStream());
         this.sender = req.getRemoteSocketAddress().toString();
+        this.rnd = r;
         this.sharedDirPath = path;
     }
 
@@ -38,6 +41,9 @@ public class PeerRequestHandler extends Thread {
                 case "checkActive":
                     handleCheckActive();
                     break;
+                case "segmentDownload":
+                    handleSegmentRequest(request);
+                    break;
             }
         } catch (IOException | ClassNotFoundException e) {
             throw new RuntimeException(e);
@@ -50,7 +56,59 @@ public class PeerRequestHandler extends Thread {
         try {
             // ruquest gia retrieve filename kai to number
             String baseFilename = request.get("filename");
-            int fragmentNumber = Integer.parseInt(request.get("fragmentNumber"));
+
+            // olo to path gia to fragment
+            String fragmentFilename = this.sharedDirPath + File.separator + baseFilename;
+            File fragmentFile = new File(fragmentFilename);
+
+            if (!fragmentFile.exists()) {
+                throw new FileNotFoundException("Fragment file not found");
+            }
+
+            // Read
+            byte[] fragment = Files.readAllBytes(fragmentFile.toPath());
+
+            response.put("file", fragment);
+            System.out.println("Download request for file " + fragmentFilename + " is successful");
+
+        } catch (Exception e) {
+            System.out.println("Download request for file " + request.get("filename") + " failed: " + e.getMessage());
+            response.put("file", null);
+
+        } finally {
+            out.writeObject(response);
+        }
+    }
+
+    public void handleSegmentRequest(HashMap<String,String> request) throws IOException {
+
+        if ((isSeeder())) {
+            handleSeederServe(request);
+        } else {
+            handleCollaborativeDownload(request);
+        }
+
+    }
+
+    public void handleSeederServe(HashMap<String,String> request) throws IOException{
+        sendFragment(request);
+        //select randomly a part of the file
+    }
+
+    public void handleCollaborativeDownload(HashMap<String,String> request) throws IOException{
+        sendFragment(request);
+        //request another part from same user
+
+    }
+
+    public void sendFragment(HashMap<String,String> request) throws IOException {
+        HashMap<String, byte[]> response = new HashMap<>();
+
+        try {
+            // ruquest gia retrieve filename kai to number
+            String baseFilename = request.get("filename");
+            int fragmentNumber = 1 + (int)(Math.random() * ((10 - 1) + 1));
+
 
             // olo to path gia to fragment
             String fragmentFilename = this.sharedDirPath + File.separator + baseFilename + ".part" + fragmentNumber;
@@ -73,24 +131,6 @@ public class PeerRequestHandler extends Thread {
         } finally {
             out.writeObject(response);
         }
-    }
-
-    public void handleSegmentRequest(HashMap<String,String> request){
-        String filepath = this.sharedDirPath + File.separator + request.get("filename");
-
-        if (isSeeder()){
-
-        }
-    }
-
-    public void handleSeederServe(HashMap<String,String> request) throws IOException{
-        //select random part
-        //select randomly a part of the file
-    }
-
-    public void handleCollaborativeDownload(HashMap<String,String> request) throws IOException{
-        //select random part
-        //request another part
 
     }
 
