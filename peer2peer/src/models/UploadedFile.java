@@ -3,6 +3,7 @@ package models;
 import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -49,11 +50,11 @@ public class UploadedFile implements Serializable {
          return new ArrayList<>(users);
     }
 
-     public void setName(String name){
-        this.name=name;
-     }
+    public void setName(String name) {
+        this.name = name;
+    }
 
-     public String getName(){
+    public String getName() {
         return name;
      }
 

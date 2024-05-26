@@ -18,6 +18,16 @@ import java.util.Random;
 import models.UploadedFile;
 import static java.lang.Double.POSITIVE_INFINITY;
 import java.util.List;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Random;
+import java.util.Set;
+import java.util.HashSet;
+import java.util.Arrays;
+import java.nio.file.*;
+
+import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
 
@@ -228,16 +238,12 @@ public class Peer extends Thread {
 
 //    }
 
-    public String uploadFileNames(){
-
-//        ArrayList<String> files = new ArrayList<>();
+    public String uploadFileNames() {
         int i = 0;
         final File folder = new File(this.sharedDirPath);
-
         File[] filesInDir = folder.listFiles();
-        for (int j =0; j < filesInDir.length; j++ ) {
-            try{
-                File fileEntry = filesInDir[j];
+        for (File fileEntry : filesInDir) {
+            try {
                 if (!fileEntry.isDirectory()) {
                     initializeSocket(trackerAddress, tracker_port);
                     HashMap<String, String> req = new HashMap<>();
@@ -254,15 +260,13 @@ public class Peer extends Thread {
 
                     out.writeObject(req);
                     HashMap<String, String> response = (HashMap<String, String>) in.readObject();
-                    if (response.get("message").equals("Success") ) {
+                    if (response.get("message").equals("Success")) {
                         i++;
                     }
-
                 }
-            }catch(Exception e){
-
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-
         }
         return "Uploaded " + i + " files";
     }
@@ -499,5 +503,80 @@ public class Peer extends Thread {
             result += name.charAt(i);
         }
         return result;
+    }
+
+    // Select a random file that the peer does not have
+    public String selectRandomFile() {
+        List<String> allFiles = list();
+        File sharedDir = new File(sharedDirPath);
+        Set<String> localFiles = new HashSet<>(Arrays.asList(sharedDir.list()));
+        List<String> missingFiles = new ArrayList<>();
+        for (String file : allFiles) {
+            if (!localFiles.contains(file)) {
+                missingFiles.add(file);
+            }
+        }
+        if (missingFiles.isEmpty()) {
+            return null; // All files are already downloaded
+        }
+        Random rand = new Random();
+        return missingFiles.get(rand.nextInt(missingFiles.size()));
+    }
+
+
+    // Get users that have fragments of the specified file
+    public HashMap<Integer, List<OnlineUser>> getUsersWithFragment(String filename) {
+        UploadedFile file = details(filename);
+        if (file == null) {
+            return new HashMap<>();
+        }
+        HashMap<Integer, List<OnlineUser>> usersWithFragments = new HashMap<>();
+        for (int i = 0; i < file.getFragmentCount(); i++) {
+            usersWithFragments.put(i, new ArrayList<>());
+        }
+        for (OnlineUser user : file.getUsersWithFile()) {
+            for (int i = 0; i < file.getFragmentCount(); i++) {
+                if (user.hasFragment(i)) { // Corrected to only use fragment number
+                    usersWithFragments.get(i).add(user);
+                }
+            }
+        }
+        return usersWithFragments;
+    }
+
+    // Assemble the file from its fragments
+    public void assembleFile(String filename, byte[][] fragments) throws IOException {
+        File outputFile = new File(sharedDirPath + File.separator + filename);
+        try (FileOutputStream fos = new FileOutputStream(outputFile)) {
+            for (byte[] fragment : fragments) {
+                fos.write(fragment);
+            }
+        }
+    }
+
+    // Download a specific fragment from a peer
+    public void downloadFragment(String filename, int fragmentNumber, OnlineUser receiver) {
+        try {
+            initializeSocket(receiver.getAddress(), receiver.getPort());
+            HashMap<String, String> request = new HashMap<>();
+            request.put("type", "simpleDownload");
+            request.put("filename", filename);
+            request.put("fragmentNumber", Integer.toString(fragmentNumber));
+            out.writeObject(request);
+            HashMap<String, byte[]> response = (HashMap<String, byte[]>) in.readObject();
+            byte[] fragment = response.get("file");
+            if (fragment != null) {
+                // Save the fragment locally (Implement the method saveFragment)
+                saveFragment(filename, fragmentNumber, fragment);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Save a fragment locally
+    private void saveFragment(String filename, int fragmentNumber, byte[] fragment) throws IOException {
+        Path fragmentPath = Paths.get(sharedDirPath, filename + ".part" + fragmentNumber);
+        Files.write(fragmentPath, fragment);
     }
 }

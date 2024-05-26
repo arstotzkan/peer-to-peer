@@ -2,13 +2,21 @@ package peer;
 
 import models.OnlineUser;
 
-public class FragmentRequestRoutine extends Thread{
+public class FragmentRequestRoutine extends Thread {
+    private Peer peer;
+    private String filename;
+    private int fragmentNumber;
+    private OnlineUser receiver;
 
-    Peer sender;
-    String filename;
-    OnlineUser receiver;
+    public FragmentRequestRoutine(Peer peer, String filename, int fragmentNumber, OnlineUser receiver) {
+        this.peer = peer;
+        this.filename = filename;
+        this.fragmentNumber = fragmentNumber;
+        this.receiver = receiver;
+    }
+
     @Override
     public void run() {
-        sender.simpleDownload(filename, receiver);
+        peer.downloadFragment(filename, fragmentNumber, receiver);
     }
 }
