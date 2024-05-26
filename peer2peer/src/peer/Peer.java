@@ -9,17 +9,19 @@ import java.io.*;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.nio.file.Files;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Random;
-
 import models.UploadedFile;
 import static java.lang.Double.POSITIVE_INFINITY;
 import java.util.List;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
-import java.util.stream.Collectors;
+import java.util.Set;
+import java.util.HashSet;
+import java.util.Arrays;
+import java.nio.file.*;
 
 
 
@@ -31,7 +33,7 @@ public class Peer extends Thread {
     private Socket socket;
     private ObjectOutputStream out;
     private ObjectInputStream in;
-    private Random rnd;
+
     private int localPort;
     private String trackerAddress;
     private static final int tracker_port = 12345; //to allazo me to actual port
@@ -42,50 +44,14 @@ public class Peer extends Thread {
         this.server = new ServerSocket();
         this.sharedDirPath = sharedDirPath;
         this.trackerAddress = trackerAddress;
-
-        this.rnd = new Random(this.generateRandomSeed());
         // Create shared directory if it doesn't exist
         File sharedDir = new File(sharedDirPath);
         if (!sharedDir.exists()) {
             sharedDir.mkdirs(); // The mkdirs() method is used to create the directory specified by the File object. If the directory already exists, it will do nothing and return false.
         }
-        // Partition the files
-        partitionAllFiles();
+        // Connect to the tracker
     }
 
-    private void partitionAllFiles() {
-        File sharedDir = new File(sharedDirPath);
-        File[] files = sharedDir.listFiles();
-
-        if (files != null) {
-            for (File file : files) {
-                if (file.isFile() && !file.getName().contains(".part")) {
-                    try {
-                        partitionFile(file);
-                    } catch (IOException e) {
-                        System.err.println("Failed to partition file: " + file.getName());
-                        e.printStackTrace();
-                    }
-                }
-            }
-        }
-    }
-
-    private void partitionFile(File file) throws IOException {
-        int chunkSize = 1024 * 1024; // 1 MB
-        byte[] buffer = new byte[chunkSize];
-        int bytesRead;
-
-        try (FileInputStream fis = new FileInputStream(file)) {
-            int chunkNumber = 0;
-            while ((bytesRead = fis.read(buffer)) > 0) {
-                File chunkFile = new File(file.getParent(), file.getName() + ".part" + chunkNumber++);
-                try (FileOutputStream fos = new FileOutputStream(chunkFile)) {
-                    fos.write(buffer, 0, bytesRead);
-                }
-            }
-        }
-    }
     private void initializeSocket(String address, int port) throws IOException {
         socket = new Socket(address, port);
         out = new ObjectOutputStream(socket.getOutputStream());
@@ -228,44 +194,31 @@ public class Peer extends Thread {
 
 //    }
 
-    public String uploadFileNames(){
-
-//        ArrayList<String> files = new ArrayList<>();
+    public String uploadFileNames() {
         int i = 0;
         final File folder = new File(this.sharedDirPath);
-
         File[] filesInDir = folder.listFiles();
-        for (int j =0; j < filesInDir.length; j++ ) {
-            try{
-                File fileEntry = filesInDir[j];
+        for (File fileEntry : filesInDir) {
+            try {
                 if (!fileEntry.isDirectory()) {
                     initializeSocket(trackerAddress, tracker_port);
                     HashMap<String, String> req = new HashMap<>();
-
-                    if(name.contains(".part.")){
-                        req.put("type", "uploadFileFragment");
-                        req.put("username", name);
-                        req.put("filename", fileEntry.getName() );
-                    } else {
-                        req.put("type", "seederUpdate");
-                        req.put("username", name);
-                        req.put("filename", fileEntry.getName() );
-                    }
-
+                    req.put("type", "uploadFileName");
+                    req.put("username", name);
+                    req.put("filename", fileEntry.getName());
                     out.writeObject(req);
                     HashMap<String, String> response = (HashMap<String, String>) in.readObject();
-                    if (response.get("message").equals("Success") ) {
+                    if (response.get("message").equals("Success")) {
                         i++;
                     }
-
                 }
-            }catch(Exception e){
-
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-
         }
         return "Uploaded " + i + " files";
     }
+
     public ArrayList<String> list() {
         try {
             initializeSocket(trackerAddress, tracker_port);
@@ -292,49 +245,12 @@ public class Peer extends Thread {
             return "No file with this name";
         }
 
-        System.out.println("Users with file " + file.getName() + " : " + file.getUsersWithFragment());
+        System.out.println("Users with file " + file.getName() + " : " + file.getUsersWithFile());
         OnlineUser best = findBestPeer(file);
         System.out.println("Best peer: " + best.getUsername());
         String downloadMessage = simpleDownload(filename, best);
         uploadFileNames();
         return downloadMessage;
-    }
-
-    public String selectRandomFileForDownload() {
-        List<String> availableFiles = list();
-        List<String> localFiles = getLocalFiles();
-
-        // Filter out the files the user already has
-        List<String> filesToDownload = availableFiles.stream()
-                .filter(file -> !localFiles.contains(file))
-                .collect(Collectors.toList());
-
-        if (filesToDownload.isEmpty()) {
-            return "No new files available for download.";
-        }
-
-        // Randomly select a file from the filtered list
-        Random random = new Random();
-        String selectedFile = filesToDownload.get(random.nextInt(filesToDownload.size()));
-
-        // Attempt to download the selected file
-        return downloadFile(selectedFile);
-    }
-
-    private List<String> getLocalFiles() { //This method lists all the files in the user's shared directory and returns them as a list of filenames.
-        File folder = new File(this.sharedDirPath);
-        File[] filesInDir = folder.listFiles();
-        List<String> localFiles = new ArrayList<>();
-
-        if (filesInDir != null) {
-            for (File fileEntry : filesInDir) {
-                if (!fileEntry.isDirectory()) {
-                    localFiles.add(fileEntry.getName());
-                }
-            }
-        }
-
-        return localFiles;
     }
 
 
@@ -385,7 +301,7 @@ public class Peer extends Thread {
         double max = POSITIVE_INFINITY;
         OnlineUser bestUser = new OnlineUser();
 
-        for (OnlineUser u: file.getUsersWithFragment()){
+        for (OnlineUser u: file.getUsersWithFile()){
 
             if (u.getUsername().equals(name)){
                 continue;
@@ -464,40 +380,82 @@ public class Peer extends Thread {
         return response.get("message");
     }
 
-    private void partition(File f) throws IOException {
-        byte[] content = Files.readAllBytes(f.toPath());
-
-        for (int i = 0; i < 10; i++){
-            File fragment = new File(f.toString() + ".part." + i );
-            OutputStream os = new FileOutputStream(fragment);
-
-            int start = i * (content.length / 10);
-            int end = ( (i + 1) * (content.length / 10) );
-
-            byte[] fragmentContent = Arrays.copyOfRange(content, start,end);
-            os.write(fragmentContent);
-        }
-    }
-
-    private void assemble(String filename) throws IOException{
-        File result = new File(filename);
-        OutputStream os = new FileOutputStream(result);
-        for (int i = 0; i < 10; i++){
-            File fragment = new File(filename + ".part." + i );
-            byte[] fragmentContent = Files.readAllBytes(fragment.toPath());
-            os.write(fragmentContent);
-        }
-    }
-
     public String getUsername() {
         return name;
     }
 
-    public int generateRandomSeed(){
-        int result = 0;
-        for (int i = 0; i <= name.length(); i++){
-            result += name.charAt(i);
+    // Select a random file that the peer does not have
+    public String selectRandomFile() {
+        List<String> allFiles = list();
+        File sharedDir = new File(sharedDirPath);
+        Set<String> localFiles = new HashSet<>(Arrays.asList(sharedDir.list()));
+        List<String> missingFiles = new ArrayList<>();
+        for (String file : allFiles) {
+            if (!localFiles.contains(file)) {
+                missingFiles.add(file);
+            }
         }
-        return result;
+        if (missingFiles.isEmpty()) {
+            return null; // All files are already downloaded
+        }
+        Random rand = new Random();
+        return missingFiles.get(rand.nextInt(missingFiles.size()));
+    }
+
+
+    // Get users that have fragments of the specified file
+    public HashMap<Integer, List<OnlineUser>> getUsersWithFragment(String filename) {
+        UploadedFile file = details(filename);
+        if (file == null) {
+            return new HashMap<>();
+        }
+        HashMap<Integer, List<OnlineUser>> usersWithFragments = new HashMap<>();
+        for (int i = 0; i < file.getFragmentCount(); i++) {
+            usersWithFragments.put(i, new ArrayList<>());
+        }
+        for (OnlineUser user : file.getUsersWithFile()) {
+            for (int i = 0; i < file.getFragmentCount(); i++) {
+                if (user.hasFragment(i)) { // Corrected to only use fragment number
+                    usersWithFragments.get(i).add(user);
+                }
+            }
+        }
+        return usersWithFragments;
+    }
+
+    // Assemble the file from its fragments
+    public void assembleFile(String filename, byte[][] fragments) throws IOException {
+        File outputFile = new File(sharedDirPath + File.separator + filename);
+        try (FileOutputStream fos = new FileOutputStream(outputFile)) {
+            for (byte[] fragment : fragments) {
+                fos.write(fragment);
+            }
+        }
+    }
+
+    // Download a specific fragment from a peer
+    public void downloadFragment(String filename, int fragmentNumber, OnlineUser receiver) {
+        try {
+            initializeSocket(receiver.getAddress(), receiver.getPort());
+            HashMap<String, String> request = new HashMap<>();
+            request.put("type", "simpleDownload");
+            request.put("filename", filename);
+            request.put("fragmentNumber", Integer.toString(fragmentNumber));
+            out.writeObject(request);
+            HashMap<String, byte[]> response = (HashMap<String, byte[]>) in.readObject();
+            byte[] fragment = response.get("file");
+            if (fragment != null) {
+                // Save the fragment locally (Implement the method saveFragment)
+                saveFragment(filename, fragmentNumber, fragment);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Save a fragment locally
+    private void saveFragment(String filename, int fragmentNumber, byte[] fragment) throws IOException {
+        Path fragmentPath = Paths.get(sharedDirPath, filename + ".part" + fragmentNumber);
+        Files.write(fragmentPath, fragment);
     }
 }
