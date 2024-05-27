@@ -28,13 +28,13 @@ bin/
 ### Mac OS ###
 .DS_Store
 
-*.jpg.part0
-*.jpg.part1
-*.jpg.part2
-*.jpg.part3
-*.jpg.part4
-*.jpg.part5
-*.jpg.part6
-*.jpg.part7
-*.jpg.part8
-*.jpg.part9
+*.jpg.part.0
+*.jpg.part.1
+*.jpg.part.2
+*.jpg.part.3
+*.jpg.part.4
+*.jpg.part.5
+*.jpg.part.6
+*.jpg.part.7
+*.jpg.part.8
+*.jpg.part.9
