@@ -71,7 +71,7 @@ public class Peer extends Thread {
             for (File file : files) {
                 if (file.isFile() && !file.getName().contains(".part")) {
                     try {
-                        partitionFile(file);
+                        partition(file);
                     } catch (IOException e) {
                         System.err.println("Failed to partition file: " + file.getName());
                         e.printStackTrace();
@@ -104,6 +104,7 @@ public class Peer extends Thread {
     }
 
     public void run(){
+
         this.openPeerServer();
     }
 

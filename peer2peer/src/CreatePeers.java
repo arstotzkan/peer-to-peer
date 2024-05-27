@@ -11,7 +11,7 @@ public class CreatePeers {
         Peer[] peers = new Peer[10];
 
         for (int i = 0; i < numberOfPeers ;i++){
-            peers[i] = new Peer("peer" + i, "pwd"+i, "src/peer/dir"+i , trackerAddress); //TODO: integrate sharedDirPath
+            peers[i] = new Peer("peer" + i, "pwd"+ i, "src/peer/dir"+ i , trackerAddress); //TODO: integrate sharedDirPath
             peers[i].start();
 
             String registerMessage = peers[i].register();

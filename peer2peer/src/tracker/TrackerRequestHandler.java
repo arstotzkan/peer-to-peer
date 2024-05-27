@@ -208,7 +208,7 @@ public class TrackerRequestHandler extends Thread{
         HashMap<String, String> response = new HashMap<>();
 
         if (f == null || user == null){
-            System.out.println("No file with this name");
+            System.out.println("No file with this name: " + filename);
             response.put("message", "Failure");
         }else if (f.userIsSeeder(username)) {
             System.out.println("Peer " + username + " already is a seeder of " + filename);
