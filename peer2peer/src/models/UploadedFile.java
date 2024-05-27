@@ -23,7 +23,8 @@ public class UploadedFile implements Serializable {
 
      public UploadedFile(String name){
          fragments = new ArrayList<>();
-        this.name=name;
+         seeders = new ArrayList<>();
+         this.name=name;
 
          for (int i = 0; i < 10; i++){
              FileFragment f = new FileFragment(name +".part." + i);

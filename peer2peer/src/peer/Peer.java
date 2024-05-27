@@ -499,7 +499,7 @@ public class Peer extends Thread {
 
     public int generateRandomSeed(){
         int result = 0;
-        for (int i = 0; i <= name.length(); i++){
+        for (int i = 0; i < name.length(); i++){
             result += name.charAt(i);
         }
         return result;
@@ -531,11 +531,11 @@ public class Peer extends Thread {
             return new HashMap<>();
         }
         HashMap<Integer, List<OnlineUser>> usersWithFragments = new HashMap<>();
-        for (int i = 0; i < file.getFragmentCount(); i++) {
+        for (int i = 0; i < 10; i++) {
             usersWithFragments.put(i, new ArrayList<>());
         }
-        for (OnlineUser user : file.getUsersWithFile()) {
-            for (int i = 0; i < file.getFragmentCount(); i++) {
+        for (OnlineUser user : file.getUsersWithFragment()) {
+            for (int i = 0; i < 10; i++) {
                 if (user.hasFragment(i)) { // Corrected to only use fragment number
                     usersWithFragments.get(i).add(user);
                 }
