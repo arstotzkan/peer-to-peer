@@ -523,7 +523,7 @@ public class Peer extends Thread {
         }
 
         for (int i = 0; i < 10; i++){
-            File fragment = new File(filename + ".part." + i);
+            File fragment = new File(sharedDirPath+ File.separator +filename + ".part." + i);
             fragment.delete();
         }
     }
