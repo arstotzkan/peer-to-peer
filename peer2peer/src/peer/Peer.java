@@ -450,13 +450,18 @@ public class Peer extends Thread {
         }
     }
 
-    private void assemble(String filename) throws IOException{
+     public void assemble(String filename) throws IOException{
         File result = new File(filename);
         OutputStream os = new FileOutputStream(result);
         for (int i = 0; i < 10; i++){
             File fragment = new File(filename + ".part." + i );
             byte[] fragmentContent = Files.readAllBytes(fragment.toPath());
             os.write(fragmentContent);
+        }
+
+        for (int i = 0; i < 10; i++){
+            File fragment = new File(sharedDirPath+ File.separator +filename + ".part." + i);
+            fragment.delete();
         }
     }
 
@@ -526,6 +531,8 @@ public class Peer extends Thread {
             File fragment = new File(sharedDirPath+ File.separator +filename + ".part." + i);
             fragment.delete();
         }
+
+        System.out.println(name + ": Assembled file " + filename );
     }
 
     // Download a specific fragment from a peer

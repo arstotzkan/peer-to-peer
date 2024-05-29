@@ -8,7 +8,7 @@ public class CreatePeers {
     public static void main(String[] args) throws IOException {
         final String trackerAddress = args[0];
         int numberOfPeers = 10;
-        Peer[] peers = new Peer[10];
+        Peer[] peers = new Peer[numberOfPeers];
 
         for (int i = 0; i < numberOfPeers ;i++){
             peers[i] = new Peer("peer" + i, "pwd"+ i, "src/peer/dir"+ i , trackerAddress); //TODO: integrate sharedDirPath

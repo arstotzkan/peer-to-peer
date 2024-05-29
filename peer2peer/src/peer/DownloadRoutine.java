@@ -66,7 +66,7 @@ public class DownloadRoutine extends Thread {
                 }
 
                 // Assemble the file from its fragments
-                peer.assembleFile(filename, fragments);
+                peer.assemble(filename);
 
                 // Mark the file as downloaded
                 downloadedFiles.add(filename);
