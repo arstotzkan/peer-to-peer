@@ -550,7 +550,7 @@ public class Peer extends Thread {
 
     // Save a fragment locally
     private void saveFragment(String filename, int fragmentNumber, byte[] fragment) throws IOException {
-        Path fragmentPath = Paths.get(sharedDirPath, filename + ".part" + fragmentNumber);
+        Path fragmentPath = Paths.get(sharedDirPath, filename + ".part." + fragmentNumber);
         Files.write(fragmentPath, fragment);
     }
 }
