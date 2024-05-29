@@ -20,14 +20,10 @@ public class CreatePeers {
             if (registerMessage.contains("Registration failed")){
                 System.out.println(peers[i].getUsername() + ": " + peers[i].logIn());
             }
-
             System.out.println(peers[i].getUsername() + ": " + peers[i].uploadFileNames() );
 
         }
 
-        for (int i = 0; i < numberOfPeers; i++){
-
-        }
     }
 
 }

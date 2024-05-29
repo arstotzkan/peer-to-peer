@@ -1,5 +1,6 @@
 package peer;
 
+import models.FileFragment;
 import models.OnlineUser;
 import models.UploadedFile;
 
@@ -19,6 +20,12 @@ public class DownloadRoutine extends Thread {
     }
 
     public void run() {
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+
         while (true) {
             try {
                 // Select a filename that the peer does not have
@@ -27,9 +34,11 @@ public class DownloadRoutine extends Thread {
                     continue; // Skip if no valid file is found or if the file is already downloaded
                 }
 
+                System.out.println(peer.getUsername() +" will download" + filename);
                 // Get users that have fragments of this file
-                HashMap<Integer, List<OnlineUser>> usersWithFragments = peer.getUsersWithFragment(filename);
+                UploadedFile file = peer.details(filename);
 
+                ArrayList<ArrayList<OnlineUser>> usersWithFragments = createFragmentToUserMap(file);
                 // Keep track of downloaded fragments
                 int totalFragments = usersWithFragments.size();
                 byte[][] fragments = new byte[totalFragments][];
@@ -40,6 +49,7 @@ public class DownloadRoutine extends Thread {
                     for (int i = 0; i < totalFragments; i++) {
                         if (!fragmentsDownloaded[i]) {
                             List<OnlineUser> users = usersWithFragments.get(i);
+                            //System.out.println("Peer:" + peer.getUsername() + "Users with " + filename +  " " + i + ": " + users);
                             int usersCount = Math.min(4, users.size());
 
                             for (int j = 0; j < usersCount; j++) {
@@ -48,6 +58,7 @@ public class DownloadRoutine extends Thread {
                                 fragmentRequest.start();
                             }
 
+                            fragmentsDownloaded[i] = true;
                             // Wait for 500ms before requesting the next set of fragments
                             Thread.sleep(500);
                         }
@@ -72,5 +83,22 @@ public class DownloadRoutine extends Thread {
             }
         }
         return true;
+    }
+
+    public ArrayList<ArrayList<OnlineUser>> createFragmentToUserMap(UploadedFile uf){
+        ArrayList<ArrayList<OnlineUser>> list = new ArrayList<>(10);
+
+        for (int j = 0; j < 10; j++)
+            list.add(new ArrayList<OnlineUser>());
+
+        for (int i = 0; i < 10; i++){
+            FileFragment ff = uf.getFragments().get(i);
+            System.out.println(peer.getUsername() + ": " + ff.getName() + " "+ ff.getUsersWithFragment());
+            for (OnlineUser u: ff.getUsersWithFragment()){
+                list.get(i).add(u);
+            }
+        }
+
+        return list;
     }
 }

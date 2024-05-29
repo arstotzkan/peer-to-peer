@@ -173,7 +173,7 @@ public class TrackerRequestHandler extends Thread{
         String filename = request.get("filename");
         String username = request.get("username");
 
-        UploadedFile f = this.memory.getUploadedFile(filename);
+        UploadedFile f = this.memory.getUploadedFile(filename.split(".part")[0]);
         FileFragment ff = f.getFragment(filename);
         OnlineUser user = this.memory.getOnlineUser(username);
 
@@ -188,7 +188,7 @@ public class TrackerRequestHandler extends Thread{
             System.out.println("Peer " + username + " already has file fragment(s) of " + filename);
             response.put("message", "Success");
         }else{
-            f.getUsersWithFragment().add(user); //TODO: check if already uploaded
+            ff.getUsersWithFragment().add(user); //TODO: check if already uploaded
             System.out.println("Peer " + username + " has file fragment(s) of " + filename);
             response.put("message", "Success");
         }
@@ -204,7 +204,7 @@ public class TrackerRequestHandler extends Thread{
         UploadedFile f = this.memory.getUploadedFile(filename);
         OnlineUser user = this.memory.getOnlineUser(username);
 
-
+        f.setSeeder(user);
         HashMap<String, String> response = new HashMap<>();
 
         if (f == null || user == null){

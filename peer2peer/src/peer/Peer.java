@@ -76,26 +76,13 @@ public class Peer extends Thread {
                         System.err.println("Failed to partition file: " + file.getName());
                         e.printStackTrace();
                     }
+                } else if (file.getName().contains(".part")) {
+                    file.delete();
                 }
             }
         }
     }
-
-    private void partitionFile(File file) throws IOException {
-        int chunkSize = 1024 * 1024; // 1 MB
-        byte[] buffer = new byte[chunkSize];
-        int bytesRead;
-
-        try (FileInputStream fis = new FileInputStream(file)) {
-            int chunkNumber = 0;
-            while ((bytesRead = fis.read(buffer)) > 0) {
-                File chunkFile = new File(file.getParent(), file.getName() + ".part" + chunkNumber++);
-                try (FileOutputStream fos = new FileOutputStream(chunkFile)) {
-                    fos.write(buffer, 0, bytesRead);
-                }
-            }
-        }
-    }
+    
     private void initializeSocket(String address, int port) throws IOException {
         socket = new Socket(address, port);
         out = new ObjectOutputStream(socket.getOutputStream());
@@ -104,7 +91,7 @@ public class Peer extends Thread {
     }
 
     public void run(){
-
+        new DownloadRoutine(this).start();
         this.openPeerServer();
     }
 
@@ -249,7 +236,7 @@ public class Peer extends Thread {
                     initializeSocket(trackerAddress, tracker_port);
                     HashMap<String, String> req = new HashMap<>();
 
-                    if(name.contains(".part.")){
+                    if(fileEntry.getName().contains(".part.")){
                         req.put("type", "uploadFileFragment");
                         req.put("username", name);
                         req.put("filename", fileEntry.getName() );
@@ -303,27 +290,6 @@ public class Peer extends Thread {
         String downloadMessage = simpleDownload(filename, best);
         uploadFileNames();
         return downloadMessage;
-    }
-
-    public String selectRandomFileForDownload() {
-        List<String> availableFiles = list();
-        List<String> localFiles = getLocalFiles();
-
-        // Filter out the files the user already has
-        List<String> filesToDownload = availableFiles.stream()
-                .filter(file -> !localFiles.contains(file))
-                .collect(Collectors.toList());
-
-        if (filesToDownload.isEmpty()) {
-            return "No new files available for download.";
-        }
-
-        // Randomly select a file from the filtered list
-        Random random = new Random();
-        String selectedFile = filesToDownload.get(random.nextInt(filesToDownload.size()));
-
-        // Attempt to download the selected file
-        return downloadFile(selectedFile);
     }
 
     private List<String> getLocalFiles() { //This method lists all the files in the user's shared directory and returns them as a list of filenames.
@@ -535,6 +501,8 @@ public class Peer extends Thread {
         for (int i = 0; i < 10; i++) {
             usersWithFragments.put(i, new ArrayList<>());
         }
+
+        System.out.println("ros: " + file.getUsersWithFragment() );
         for (OnlineUser user : file.getUsersWithFragment()) {
             for (int i = 0; i < 10; i++) {
                 if (user.hasFragment(i)) { // Corrected to only use fragment number
@@ -552,6 +520,11 @@ public class Peer extends Thread {
             for (byte[] fragment : fragments) {
                 fos.write(fragment);
             }
+        }
+
+        for (int i = 0; i < 10; i++){
+            File fragment = new File(filename + ".part." + i);
+            fragment.delete();
         }
     }
 

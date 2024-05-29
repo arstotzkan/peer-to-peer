@@ -18,14 +18,18 @@ public class UploadedFile implements Serializable {
      public UploadedFile(){
          fragments = new ArrayList<>();
          seeders = new ArrayList<>();
-        name="";
+         name="";
+
+         for (int i = 0; i < 10; i++){
+             FileFragment f = new FileFragment(name +".part." + i);
+             fragments.add(f);
+         }
      }
 
      public UploadedFile(String name){
          fragments = new ArrayList<>();
          seeders = new ArrayList<>();
          this.name=name;
-
          for (int i = 0; i < 10; i++){
              FileFragment f = new FileFragment(name +".part." + i);
              fragments.add(f);
@@ -83,5 +87,13 @@ public class UploadedFile implements Serializable {
             }
         }
         return false;
+    }
+
+    public void setSeeder(OnlineUser u){
+         seeders.add(u);
+
+         for (FileFragment ff: getFragments()){
+             ff.getUsersWithFragment().add(u);
+         }
     }
 }
