@@ -36,7 +36,6 @@ public class DownloadRoutine extends Thread {
                     continue; // Skip if no valid file is found or if the file is already downloaded
                 }
 
-                System.out.println(peer.getUsername() +" will download" + filename);
                 // Get users that have fragments of this file
                 UploadedFile file = peer.details(filename);
 
@@ -94,7 +93,6 @@ public class DownloadRoutine extends Thread {
 
         for (int i = 0; i < 10; i++){
             FileFragment ff = uf.getFragments().get(i);
-            System.out.println(peer.getUsername() + ": " + ff.getName() + " "+ ff.getUsersWithFragment());
             for (OnlineUser u: ff.getUsersWithFragment()){
                 list.get(i).add(u);
             }

@@ -542,6 +542,7 @@ public class Peer extends Thread {
             out.writeObject(request);
             HashMap<String, byte[]> response = (HashMap<String, byte[]>) in.readObject();
             byte[] fragment = response.get("file");
+            System.out.println();
             if (fragment != null) {
                 // Save the fragment locally (Implement the method saveFragment)
                 saveFragment(filename, fragmentNumber, fragment);
