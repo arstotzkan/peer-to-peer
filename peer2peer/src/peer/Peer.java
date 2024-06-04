@@ -459,10 +459,6 @@ public class Peer extends Thread {
             os.write(fragmentContent);
         }
 
-        for (int i = 0; i < 10; i++){
-            File fragment = new File(sharedDirPath+ File.separator +filename + ".part." + i);
-            fragment.delete();
-        }
     }
 
     public String getUsername() {
