@@ -30,7 +30,9 @@ public class DownloadRoutine extends Thread {
             try {
                 // Select a filename that the peer does not have
                 String filename = peer.selectRandomFile();
-                if (filename == null || downloadedFiles.contains(filename)) {
+                if (filename == null){
+                  break;
+                } else if (downloadedFiles.contains(filename)) {
                     continue; // Skip if no valid file is found or if the file is already downloaded
                 }
 
@@ -49,7 +51,6 @@ public class DownloadRoutine extends Thread {
                     for (int i = 0; i < totalFragments; i++) {
                         if (!fragmentsDownloaded[i]) {
                             List<OnlineUser> users = usersWithFragments.get(i);
-                            //System.out.println("Peer:" + peer.getUsername() + "Users with " + filename +  " " + i + ": " + users);
                             int usersCount = Math.min(4, users.size());
 
                             for (int j = 0; j < usersCount; j++) {
