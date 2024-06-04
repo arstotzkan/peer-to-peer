@@ -66,6 +66,7 @@ public class DownloadRoutine extends Thread {
                 }
 
                 // Assemble the file from its fragments
+                System.out.println("Peer " + peer.getUsername() + " has downloaded file " + filename);
                 peer.assemble(filename);
 
                 // Mark the file as downloaded
