@@ -451,10 +451,10 @@ public class Peer extends Thread {
     }
 
      public void assemble(String filename) throws IOException{
-        File result = new File(filename);
+        File result = new File(sharedDirPath + File.separator + filename);
         OutputStream os = new FileOutputStream(result);
         for (int i = 0; i < 10; i++){
-            File fragment = new File(filename + ".part." + i );
+            File fragment = new File(sharedDirPath + File.separator + filename + ".part." + i );
             byte[] fragmentContent = Files.readAllBytes(fragment.toPath());
             os.write(fragmentContent);
         }
